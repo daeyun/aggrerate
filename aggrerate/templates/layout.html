@@ -1,0 +1,38 @@
+<!DOCTYPE html> 
+<html lang="en-US"> 
+    <head> 
+        <meta charset="UTF-8" /> 
+        <title>Aggrerate</title>
+        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> 
+        <link href="/static/css/style.css" rel="stylesheet" type="text/css" /> 
+        <link rel="shortcut icon" href="/favicon.ico" /> 
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/bootstrap/js/bootstrap.min.js"></script> 
+        <script type="text/javascript" src="/static/js/script.js"></script> 
+    </head> 
+    <body> 
+        <div id="container">
+            <div id="heading">
+                <h1>Aggrerate</h1>
+                <em>Aggregated Tech Reviews</em>
+            </div>
+            <div id="menu">
+                <div class="navbar">
+                <div class="navbar-inner">
+                <ul class="nav">
+                    <li {% if request.path=="/" %}class="active"{% endif %}><a href="/">Home</a></li>
+                    <li {% if request.path=="/reviews" %}class="active"{% endif %}><a href="{{ url_for('reviews') }}">Reviews</a></li>
+                    <li {% if request.path=="/login" %}class="active"{% endif %}><a href="{{ url_for('login') }}">Log in</a></li>
+                    <li {% if request.path=="/about" %}class="active"{% endif %}><a href="{{ url_for('about') }}">About</a></li>
+                </ul>
+                </div>
+                </div>
+            </div>
+            <div id="content">
+                {% block body %}{% endblock %}
+            </div>
+            <div id="footer">
+            </div>
+        </div><!-- end of container -->
+    </body>
+</html>

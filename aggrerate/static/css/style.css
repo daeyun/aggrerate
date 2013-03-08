@@ -1,0 +1,23 @@
+@charset "utf-8";
+#heading {
+    height:64px;
+}
+#heading h1 {
+    float:left;
+    font-size:180%;
+}
+#heading em {
+    float:left;
+    font-size:90%;
+    margin-left:56px;
+    margin-top:22px;
+    color:#9a9a9a;
+}
+#container {
+    width: 900px;
+    margin: 0 auto;
+}
+#content {
+    padding:20px;
+    padding-top:5px;
+}
