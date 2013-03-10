@@ -1,6 +1,6 @@
 from aggrerate import app
 from flask import render_template, request
-import flask, MySQLdb, time
+import flask, MySQLdb, MySQLdb.cursors, time
 from aggrerate.web_scripts import loginCode
 
 def cookie_params(request):
@@ -27,7 +27,7 @@ def reviews():
 def login():
     params = cookie_params(request)
     return render_template('login.html', **params)
-    
+
 @app.route('/attemptLogin')
 def attemptLogin():
     params = cookie_params(request)
@@ -40,8 +40,37 @@ def attemptLogin():
             return resp
     return flask.redirect(flask.url_for('login'))
 
-@app.route('/product/')
-@app.route('/product/<productId>')
+@app.route('/products/')
+def products_list():
+    params = cookie_params(request)
+
+    db = MySQLdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+        user='jeff',
+        passwd='jeff',
+        db='aggrerate')
+    cur = db.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("""
+    SELECT
+        manufacturers.name AS manufacturer,
+        products.name AS name,
+        product_categories.name AS category
+    FROM
+        products
+    INNER JOIN product_categories
+    INNER JOIN manufacturers
+    ON
+        products.category_id = product_categories.id
+    AND products.manufacturer_id = manufacturers.id;
+    ORDER BY
+        products.id DESC
+    """)
+    products = cur.fetchall()
+    params['products'] = []
+    for product in products:
+        params['products'].append(product)
+    return render_template('reviews.html', **params)
+
+@app.route('/products/<productId>')
 def enterReview(productId=None):
     params = cookie_params(request)
     return render_template('enterReview.html', productId=productId, **params)

@@ -2,7 +2,9 @@
 {% block body %}
 <div class="product">
     <h4>Product name</h4>
-    review summary
+    {% for product in products %}
+        {{ product }}
+    {% endfor %}
 </div>
 
 <div class="product">
