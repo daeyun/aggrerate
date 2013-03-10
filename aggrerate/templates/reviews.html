@@ -1,14 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="product">
-    <h4>Product name</h4>
     {% for product in products %}
-        {{ product }}
+    <div class="product">
+        <a class="product_name" href="/products/id"><h4>{{ product.manufacturer }} {{ product.name }}</h4> </a>
+        in <a href="/category/id"> {{ product.category }}</a>
+        <p>review summary</p>
+    </div>
     {% endfor %}
-</div>
-
-<div class="product">
-    <h4>Product name</h4>
-    review summary
-</div>
 {% endblock %}
