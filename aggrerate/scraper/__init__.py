@@ -11,6 +11,7 @@ class ReviewScraper(object):
         self.url   = url
         self.soup  = None
         self.score = None
+        self.body  = None
 
     @classmethod
     def from_url(cls, url):
@@ -45,20 +46,3 @@ def register_scraper(scraper):
 # We don't use anything from this module, but the classes there are registered
 # into our list of scrapers
 import aggrerate.scraper.site_scrapers
-
-def test():
-    urls = [
-        "http://www.theverge.com/2012/11/2/3589280/google-nexus-4-review",
-        "http://www.theverge.com/2012/11/1/3584486/nokia-lumia-920-review",
-        "http://reviews.cnet.com/samsung-galaxy-s3-review/",
-        "http://gdgt.com/apple/iphone/5/",
-        "http://www.pcmag.com/article2/0,2817,2414819,00.asp"
-    ]
-
-    for url in urls:
-        scraper = ReviewScraper.from_url(url)
-        if scraper:
-            scraper.parse_page()
-            print scraper
-        else:
-            print "Couldn't find scraper :("

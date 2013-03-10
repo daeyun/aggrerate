@@ -1,3 +1,5 @@
+import itertools
+
 from aggrerate.scraper import ReviewScraper, register_scraper
 
 @register_scraper
@@ -16,6 +18,10 @@ class VergeScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="product-score-verge").strong.text)
+            self.body = \
+                '\n\n'.join(itertools.chain(
+                    self.soup.find(class_="conclusion").stripped_strings
+                ))
         except:
             print "Unable to find score on given page"
 
@@ -35,6 +41,11 @@ class CNETScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="rateBarStyle").strong.text)
+            self.body = \
+                '\n\n'.join(itertools.chain(
+                    self.soup.find(id="reviewSummary").stripped_strings,
+                    self.soup.find(id="editorReview").stripped_strings
+                ))
         except:
             print "Unable to find score on given page"
 
@@ -54,6 +65,10 @@ class GdgtScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="new-gdgt-score").text) / 10
+            self.body = \
+                '\n\n'.join(itertools.chain(
+                    self.soup.find(class_="gdgt-says").stripped_strings
+                ))
         except:
             print "Unable to find score on given page"
 
@@ -73,6 +88,11 @@ class PCMagScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="rating").span['title'])*2
+
+            # This can be improved massively. It's pretty ugly now.
+            self.body = \
+                '\n\n'.join(itertools.chain(
+                    self.soup.find(class_="review-body").stripped_strings
+                ))
         except:
             print "Unable to find score on given page"
-
