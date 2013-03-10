@@ -26,6 +26,64 @@ def reviews():
     params = cookie_params(request)
     return render_template('reviews.html', **params)
 
+@app.route('/users/<username>')
+def userPage(username=None):
+    params = cookie_params(request)
+    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+        user='jeff',
+        passwd='jeff',
+        db='aggrerate')
+    cur = db.cursor(mdb.cursors.DictCursor)
+    cur.execute("""
+    SELECT
+        reviews.date AS date,
+        reviews.score AS score,
+        reviews.product_id AS prod_id,
+        reviews.body_text AS text,
+        reviews.id AS rev_id
+    FROM
+        users
+    INNER JOIN user_reviews
+    INNER JOIN reviews
+    ON
+        users.id = user_reviews.user_id
+    AND user_reviews.review_id = reviews.id;
+    ORDER BY
+        reviews.datetime DESC
+    """)
+    products = cur.fetchall()
+    params['reviews'] = []
+    for product in products:
+        params['reviews'].append(product)
+    params['dispUsername'] = username
+    return render_template('user.html', **params)
+
+@app.route('/deleteReview', methods=["POST"])
+def deleteReview():
+    params = cookie_params(request)
+    id_to_delete = request.form['review']
+    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+        user='jeff',
+        passwd='jeff',
+        db='aggrerate')
+    cur = db.cursor(mdb.cursors.DictCursor)
+    cur.execute("""
+    DELETE FROM
+        reviews
+    WHERE
+        id = %s
+    """, (id_to_delete))
+    cur.execute("""
+    DELETE FROM
+        user_reviews
+    WHERE
+        review_id = %s
+    """, (id_to_delete))
+    db.commit()
+    return flask.redirect(flask.url_for('about'))
+    # Make this work, dunno how to redirect to variable things
+    # return flask.redirect(flask.url_for('users', username=params['username']))
+
 @app.route('/login')
 def login():
     params = cookie_params(request)
