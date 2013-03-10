@@ -40,6 +40,24 @@ def attemptLogin():
             return resp
     return flask.redirect(flask.url_for('login'))
 
+@app.route('/logout')
+def logout():
+    resp = flask.make_response(render_template('main.html'))
+    resp.set_cookie('username', '', expires=0)
+    return resp
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+@app.route('/attemptSignup', methods=["POST"])
+def attemptSignup():
+    if not ('username' in request.form.keys() and 'password' in request.form.keys() and request.form['username'] and request.form['password']):
+        return flask.redirect(flask.url_for('signup', retry=True))
+    # It's time to add the user's new username and password to the table
+    loginCode.addUser(request.form['username'], request.form['password'])
+    return flask.redirect(flask.url_for('login'))
+
 @app.route('/products/')
 def products_list():
     params = cookie_params(request)
