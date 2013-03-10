@@ -73,6 +73,7 @@ def products_list():
     cur.execute("""
     SELECT
         manufacturers.name AS manufacturer,
+        products.id AS id
         products.name AS name,
         product_categories.name AS category
     FROM
