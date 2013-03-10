@@ -3,8 +3,9 @@
     {% for product in products %}
     <div class="product">
         <a class="product_name" href="/products/id"><h4>{{ product.manufacturer }} {{ product.name }}</h4> </a>
-        in <a href="/category/id"> {{ product.category }}</a>
+        in <a href="/category/{{ product.id }}"> {{ product.category }}</a>
         <p>review summary</p>
+        {{ product }}
     </div>
     {% endfor %}
 {% endblock %}
