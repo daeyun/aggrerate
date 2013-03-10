@@ -1,6 +1,9 @@
-from aggrerate import app
+import MySQLdb as mdb
+
 from flask import render_template, request
-import flask, MySQLdb, MySQLdb.cursors, time
+import flask, time
+
+from aggrerate import app
 from aggrerate.web_scripts import loginCode
 
 def cookie_params(request):
@@ -62,11 +65,11 @@ def attemptSignup():
 def products_list():
     params = cookie_params(request)
 
-    db = MySQLdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
         user='jeff',
         passwd='jeff',
         db='aggrerate')
-    cur = db.cursor(MySQLdb.cursors.DictCursor)
+    cur = db.cursor(mdb.cursors.DictCursor)
     cur.execute("""
     SELECT
         manufacturers.name AS manufacturer,
@@ -88,7 +91,7 @@ def products_list():
         params['products'].append(product)
     return render_template('reviews.html', **params)
 
-@app.route('/products/<productId>')
+@app.route('/products/<productId>/')
 def enterReview(productId=None):
     params = cookie_params(request)
     return render_template('enterReview.html', productId=productId, **params)
@@ -98,7 +101,7 @@ def postReview():
     params = cookie_params(request)
     username = request.cookies.get('username')
 
-    db = MySQLdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
         user='matt',
         passwd='matt',
         db='aggrerate')
