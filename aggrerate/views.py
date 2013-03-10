@@ -106,14 +106,46 @@ def postReview():
         passwd='matt',
         db='aggrerate')
     cur = db.cursor()
+
     dtstr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-    review_query = 'INSERT INTO reviews VALUES (%s, %s, %s, %s, %s)'
-    user_review_query = 'INSERT INTO user_reviews VALUES (%s, LAST_INSERT_ID(), %s)'
-    cur.execute(review_query, (None, dtstr, request.form['score'], request.form['productId'], request.form['reviewText']))
-    db.query('SELECT id FROM users WHERE name = "%s"' % username)
-    user_id = db.store_result().fetch_row()
-    print "Gotten ID: ", user_id
-    user_id = user_id[0][0]
-    cur.execute(user_review_query, (None, user_id))
+
+    cur.execute("""
+    INSERT INTO
+        reviews
+    VALUES (%s, %s, %s, %s, %s)
+    """, (None, dtstr, request.form['score'], request.form['productId'],
+            request.form['reviewText'])
+    )
+
+    cur.execute("""
+    SELECT
+        id
+    FROM
+        users
+    WHERE
+        name = %s
+    """, (username,)
+    )
+
+    cur.execute("""
+    INSERT INTO
+        user_reviews
+    VALUES
+        (
+            %s,
+            LAST_INSERT_ID(),
+            (
+                SELECT
+                    users.id
+                FROM
+                    users
+                WHERE
+                    users.name = %s
+            )
+        )
+    """, (None, username)
+    )
+
     db.commit()
+
     return render_template('successfulReview.html', **params)
