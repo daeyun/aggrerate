@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="product">
+    <h4>{{ productId }}</h4>
+    <form name="f1" action="{{ url_for('postReview') }}" method="post">
+    	<input type="text" id="aaa" value="test">
+    	<input type="submit" class="btn">
+	</form>
+</div>
+{% endblock %}
