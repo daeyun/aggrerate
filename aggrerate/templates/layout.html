@@ -15,6 +15,11 @@
             <div id="heading">
                 <h1>Aggrerate</h1>
                 <em>Aggregated Tech Reviews</em>
+                {% if username %}
+                    <p>Hello, {{ username }}</p>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Log in</a>
+                {% endif %}
             </div>
             <div id="menu">
                 <div class="navbar">
