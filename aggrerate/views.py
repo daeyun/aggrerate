@@ -34,10 +34,8 @@ def login():
 @app.route('/attemptLogin')
 def attemptLogin():
     params = cookie_params(request)
-    print request.args.keys()
     if 'username' in flask.request.args.keys() and 'password' in request.args.keys():
         if loginCode.validateUser(request.args['username'], request.args['password']):
-        # if loginCode.validateUser('a', 'a'):
             resp = flask.make_response(render_template('main.html', username=flask.request.args['username']))
             resp.set_cookie('username', flask.request.args['username'])
             return resp
@@ -58,8 +56,10 @@ def attemptSignup():
     if not ('username' in request.form.keys() and 'password' in request.form.keys() and request.form['username'] and request.form['password']):
         return flask.redirect(flask.url_for('signup', retry=True))
     # It's time to add the user's new username and password to the table
-    loginCode.addUser(request.form['username'], request.form['password'])
-    return flask.redirect(flask.url_for('login'))
+    if loginCode.addUser(request.form['username'], request.form['password']):
+        return flask.redirect(flask.url_for('login'))
+    else:
+        return flask.redirect(flask.url_for('signup', retry=True))
 
 @app.route('/products/')
 def products_list():
