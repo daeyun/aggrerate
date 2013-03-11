@@ -1,9 +1,8 @@
-import MySQLdb as mdb
-
 from flask import render_template, request
 import flask, time
 
 from aggrerate import app
+from aggrerate.util import get_db, get_dict_cursor
 from aggrerate.web_scripts import loginCode
 
 def cookie_params(request):
@@ -29,11 +28,7 @@ def reviews():
 @app.route('/users/<username>')
 def userPage(username=None):
     params = cookie_params(request)
-    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
-        user='jeff',
-        passwd='jeff',
-        db='aggrerate')
-    cur = db.cursor(mdb.cursors.DictCursor)
+    cur = get_dict_cursor()
     cur.execute("""
     SELECT
         reviews.date AS date,
@@ -62,11 +57,8 @@ def userPage(username=None):
 def deleteReview():
     params = cookie_params(request)
     id_to_delete = request.form['review']
-    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
-        user='jeff',
-        passwd='jeff',
-        db='aggrerate')
-    cur = db.cursor(mdb.cursors.DictCursor)
+    db = get_db()
+    cur = get_dict_cursor(db)
     cur.execute("""
     DELETE FROM
         reviews
@@ -123,11 +115,7 @@ def attemptSignup():
 def products_list():
     params = cookie_params(request)
 
-    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
-        user='jeff',
-        passwd='jeff',
-        db='aggrerate')
-    cur = db.cursor(mdb.cursors.DictCursor)
+    cur = get_dict_cursor()
     cur.execute("""
     SELECT
         manufacturers.name AS manufacturer,
@@ -160,10 +148,7 @@ def postReview():
     params = cookie_params(request)
     username = request.cookies.get('username')
 
-    db = mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
-        user='matt',
-        passwd='matt',
-        db='aggrerate')
+    db = get_db()
     cur = db.cursor()
 
     dtstr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
