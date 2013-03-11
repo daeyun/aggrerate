@@ -26,7 +26,8 @@ def get_db():
     return mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
         user='jeff',
         passwd='jeff',
-        db='aggrerate'
+        db='aggrerate',
+        charset='utf8'
     )
 
 def get_dict_cursor(db=None):

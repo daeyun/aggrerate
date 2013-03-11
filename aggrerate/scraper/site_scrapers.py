@@ -5,6 +5,7 @@ from aggrerate.scraper import ReviewScraper, register_scraper
 @register_scraper
 class VergeScraper(ReviewScraper):
     site_name = "TheVerge"
+    pretty_site_name = "The Verge"
 
     def __init__(self, url):
         super(self.__class__, self).__init__(url)
@@ -27,7 +28,7 @@ class VergeScraper(ReviewScraper):
 
 @register_scraper
 class CNETScraper(ReviewScraper):
-    site_name = "CNET"
+    pretty_site_name = site_name = "CNET"
 
     def __init__(self, url):
         super(self.__class__, self).__init__(url)

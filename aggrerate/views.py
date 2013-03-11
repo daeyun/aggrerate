@@ -3,6 +3,7 @@ import flask, time
 
 from aggrerate import app, util
 from aggrerate.web_scripts import loginCode
+from aggrerate.scraper import ReviewScraper
 
 def cookie_params(request):
     params = {"username": request.cookies.get('username')}
@@ -174,6 +175,7 @@ def product(product_id=None):
     cur.execute("""
     SELECT
         reviews.id,
+        scraped_reviews.url AS url,
         date,
         score,
         body_text,
@@ -218,20 +220,18 @@ def post_product_review(product_id):
     params = cookie_params(request)
 
     (db, cur) = util.get_dict_cursor()
-    dtstr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
     cur.execute("""
     INSERT INTO
         reviews
-    VALUES (%s, %s, %s, %s, %s)
-    """, (None, dtstr, request.form['score'], product_id,
-            request.form['reviewText'])
+    VALUES (NULL, NOW(), %s, %s, %s)
+    """, (request.form['score'], product_id, request.form['reviewText'])
     )
     cur.execute("""
     INSERT INTO
         user_reviews
     VALUES
         (
-            %s,
+            NULL,
             LAST_INSERT_ID(),
             (
                 SELECT
@@ -242,7 +242,7 @@ def post_product_review(product_id):
                     users.name = %s
             )
         )
-    """, (None, params['username'])
+    """, (params['username'],)
     )
 
     db.commit()
@@ -253,4 +253,48 @@ def post_product_review(product_id):
 @app.route('/scrape/', methods=['POST'])
 def scrape():
     params = cookie_params(request)
-    return None
+    
+    redir = flask.redirect(flask.url_for('product', product_id=request.form['product_id']))
+
+    # Create the appropriate scraper
+    scraper = ReviewScraper.from_url(request.form['url'])
+    if not scraper:
+        flask.flash("Couldn't create the scraper, boo", "error")
+        return redir
+
+    scraper.parse_page()
+    if not scraper.score:
+        flask.flash("Couldn't find the result, boo", "error")
+        return redir
+
+    # Add the scraped review to the database
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    INSERT INTO
+        reviews
+    VALUES (NULL, NOW(), %s, %s, %s)
+    """, (scraper.score, request.form['product_id'], scraper.body)
+    )
+    cur.execute("""
+    INSERT INTO
+        scraped_reviews
+    VALUES
+        (
+            NULL,
+            LAST_INSERT_ID(),
+            (
+                SELECT
+                    review_sources.id
+                FROM
+                    review_sources
+                WHERE
+                    review_sources.name = %s
+            ),
+            %s
+        )
+    """, (scraper.__class__.pretty_site_name, request.form['url'])
+    )
+    db.commit()
+
+    flask.flash("Successfully scraped. They gave this product a %s." % scraper.score, "success")
+    return redir

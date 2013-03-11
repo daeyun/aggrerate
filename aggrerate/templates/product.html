@@ -8,8 +8,7 @@
             <h3>Scraped Reviews</h3>
             {% for review in scraped_reviews %}
                 <div class="review">
-                    <h4>Review by {{ review.source_name }}: {{ review.score }}</h4>
-                    {{ review.body_text | markdown }}
+                    <h4>{{ review.source_name }} says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a></h4>
                 </div>
             {% endfor %}
         </div>
@@ -58,7 +57,7 @@
                     <div class="control-group">
                         <label for="score" class="control-label">Score</label>
                         <div class="controls">
-                            <input type="number" min="0" max="10" step="1" value="10" class="input-mini">
+                            <input name="score" type="number" min="0" max="10" step="1" value="10" class="input-mini">
                         </div>
                     </div>
 
