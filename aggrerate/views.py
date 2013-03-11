@@ -1,3 +1,8 @@
+# Markdown and smartypants are text filters, to convert the body text into nice,
+# beautiful HTML
+from markdown import markdown
+from smartypants import smartyPants
+
 from flask import render_template, request
 import flask, time
 
@@ -44,7 +49,7 @@ def userPage(username=None):
         users.id = user_reviews.user_id
     AND user_reviews.review_id = reviews.id
     ORDER BY
-        reviews.datetime DESC
+        reviews.date DESC
     """)
     products = cur.fetchall()
     params['reviews'] = []
@@ -158,6 +163,27 @@ def product(productId=None):
         products.id = %s
     """, (productId,))
     params['product'] = cur.fetchone()
+
+    # Find the product user reviews
+    cur.execute("""
+    SELECT
+        reviews.id,
+        date,
+        score,
+        body_text,
+        user_id
+    FROM
+        reviews
+    INNER JOIN user_reviews
+    ON
+        reviews.id = user_reviews.review_id
+    WHERE
+        product_id = %s
+    """, (productId,))
+    params['user_reviews'] = cur.fetchall()
+
+    for r in params['user_reviews']:
+        r['body_text'] = flask.Markup(smartyPants(markdown(r['body_text'])))
 
     return render_template('product.html', **params)
 

@@ -2,6 +2,14 @@
 {% block body %}
 <div class="product">
     <h4>{{ product.manufacturer }} {{ product.name }}</h4>
+    <div class="user_reviews">
+        {% for review in user_reviews %}
+            <div class="review">
+                <h5>Review by {{ review.user_id }}</h5>
+                {{ review.body_text }}
+            </div>
+        {% endfor %}
+    </div>
     <form name="f1" action="{{ url_for('postReview') }}" method="post">
     	<input type="hidden" name="productId" value="{{ productId }}">
     	Score:<select name="score">
