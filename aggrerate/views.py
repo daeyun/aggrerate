@@ -41,14 +41,21 @@ def user_profile(username):
         reviews.product_id AS product_id,
         reviews.body_text AS body_text,
         reviews.id AS id,
-        users.id AS user_id
+        users.id AS user_id,
+        products.id AS product_id,
+        products.name AS product_name,
+        manufacturers.name AS manufacturer
     FROM
         users
     INNER JOIN user_reviews
     INNER JOIN reviews
+    INNER JOIN products
+    INNER JOIN manufacturers
     ON
         users.id = user_reviews.user_id
     AND user_reviews.review_id = reviews.id
+    AND products.id = reviews.product_id
+    AND manufacturers.id = products.manufacturer_id
     WHERE
         users.name = %s
     ORDER BY

@@ -3,7 +3,7 @@
     <h2>Reviews</h2>
     {% for review in reviews %}
         {# Need +0000 in date for it to recognize the timezone as GMT #}
-        <h3>Review: {{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
+        <h3><a href="{{ url_for('product', product_id=review.product_id) }}" title="Product details">{{ review.manufacturer }} {{ review.product_name }}</a>: {{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
             {% if username == dispUsername %}
                 <a class="close" href="{{ url_for('delete_review', review_id=review.id, username=username) }}">&times;</a>
             {% endif %}
