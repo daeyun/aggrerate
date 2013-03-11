@@ -245,3 +245,8 @@ def postReview():
     db.commit()
 
     return render_template('successfulReview.html', **params)
+
+@app.route('/scrape/', methods=['POST'])
+def scrape():
+    params = cookie_params(request)
+    return None
