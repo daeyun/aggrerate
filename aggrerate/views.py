@@ -29,7 +29,7 @@ def reviews():
 
 @app.route("/users/<username>/")
 @util.templated("user.html")
-def userPage(username):
+def user_profile(username):
     params = cookie_params(request)
 
     (db, cur) = util.get_dict_cursor()
@@ -39,7 +39,8 @@ def userPage(username):
         reviews.score AS score,
         reviews.product_id AS product_id,
         reviews.body_text AS body_text,
-        reviews.id AS id
+        reviews.id AS id,
+        users.id AS user_id
     FROM
         users
     INNER JOIN user_reviews
@@ -77,8 +78,8 @@ def delete_review(review_id):
     flask.flash("Review deleted", "success")
     if request.args.has_key('product_id'):
         return flask.redirect(flask.url_for('product', product_id=request.args['product_id']))
-    elif request.args.has_key('user_id'):
-        return flask.redirect(flask.url_for('user', user_id=request.args['user_id']))
+    elif request.args.has_key('username'):
+        return flask.redirect(flask.url_for('user_profile', username=request.args['username']))
     else:
         flask.abort(404)
 

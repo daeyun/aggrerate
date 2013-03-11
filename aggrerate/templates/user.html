@@ -2,11 +2,12 @@
 {% block body %}
     <h2>Reviews</h2>
     {% for review in reviews %}
-            <h3>Review: {{ review.score }} <small>{{ review.date }}</small> {{ review.user_id }}
-                {% if username == dispUsername %}
-                    <a class="close" href="{{ url_for('delete_review', review_id=review.id, user_id=user_id) }}">&times;</a>
-                {% endif %}
-            </h3>
-    {{ review.body_text | markdown }}
+        {# Need +0000 in date for it to recognize the timezone as GMT #}
+        <h3>Review: {{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
+            {% if username == dispUsername %}
+                <a class="close" href="{{ url_for('delete_review', review_id=review.id, username=username) }}">&times;</a>
+            {% endif %}
+        </h3>
+        {{ review.body_text | markdown }}
     {% endfor %}
 {% endblock %}
