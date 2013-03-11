@@ -2,6 +2,17 @@
 {% block body %}
 <div class="product">
     <h2>{{ product.manufacturer }} {{ product.name }}</h2>
+
+    <div class="scraped_reviews">
+        <h3>Scraped Reviews</h3>
+        {% for review in scraped_reviews %}
+            <div class="review">
+                <h4>Review by {{ review.source_name }}: {{ review.score }}</h4>
+                {{ review.body_text | markdown }}
+            </div>
+        {% endfor %}
+    </div>
+
     <div class="user_reviews">
         <h3>User Reviews</h3>
         {% for review in user_reviews %}

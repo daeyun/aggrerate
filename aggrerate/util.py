@@ -10,4 +10,4 @@ def get_db():
 def get_dict_cursor(db=None):
     if not db:
         db = get_db()
-    return db.cursor(mdb.cursors.DictCursor)
+    return (db, db.cursor(mdb.cursors.DictCursor))

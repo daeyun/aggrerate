@@ -1,8 +1,7 @@
 from flask import render_template, request
 import flask, time
 
-from aggrerate import app
-from aggrerate.util import get_db, get_dict_cursor
+from aggrerate import app, util
 from aggrerate.web_scripts import loginCode
 
 def cookie_params(request):
@@ -28,7 +27,7 @@ def reviews():
 @app.route('/users/<username>')
 def userPage(username=None):
     params = cookie_params(request)
-    cur = get_dict_cursor()
+    (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
         reviews.date AS date,
@@ -57,21 +56,16 @@ def userPage(username=None):
 def deleteReview():
     params = cookie_params(request)
     id_to_delete = request.form['review']
-    db = get_db()
-    cur = get_dict_cursor(db)
+
+    (db, cur) = util.get_dict_cursor(None)
     cur.execute("""
     DELETE FROM
         reviews
     WHERE
         id = %s
     """, (id_to_delete))
-    cur.execute("""
-    DELETE FROM
-        user_reviews
-    WHERE
-        review_id = %s
-    """, (id_to_delete))
     db.commit()
+
     return flask.redirect(flask.url_for('about'))
     # Make this work, dunno how to redirect to variable things
     # return flask.redirect(flask.url_for('users', username=params['username']))
@@ -115,7 +109,7 @@ def attemptSignup():
 def products_list():
     params = cookie_params(request)
 
-    cur = get_dict_cursor()
+    (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
         manufacturers.name AS manufacturer,
@@ -140,7 +134,7 @@ def product(productId=None):
     params = cookie_params(request)
 
     # Find the product properties
-    cur = get_dict_cursor()
+    (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
         manufacturers.name AS manufacturer,
@@ -158,6 +152,27 @@ def product(productId=None):
         products.id = %s
     """, (productId,))
     params['product'] = cur.fetchone()
+
+    # Find the product scraped reviews
+    cur.execute("""
+    SELECT
+        reviews.id,
+        date,
+        score,
+        body_text,
+        review_sources.name AS source_name
+    FROM
+        reviews
+    INNER JOIN scraped_reviews
+    INNER JOIN review_sources
+    ON
+        reviews.id = scraped_reviews.review_id
+    AND scraped_reviews.review_source_id = review_sources.id
+    WHERE
+        product_id = %s
+    """, (productId,))
+    params['scraped_reviews'] = cur.fetchall()
+
 
     # Find the product user reviews
     cur.execute("""
@@ -186,8 +201,7 @@ def postReview():
     params = cookie_params(request)
     username = request.cookies.get('username')
 
-    db = get_db()
-    cur = db.cursor()
+    (db, cur) = util.get_dict_cursor()
 
     dtstr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
