@@ -1,15 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="product">
-    <h4>{{ product.manufacturer }} {{ product.name }}</h4>
+    <h2>{{ product.manufacturer }} {{ product.name }}</h2>
     <div class="user_reviews">
+        <h3>User Reviews</h3>
         {% for review in user_reviews %}
             <div class="review">
-                <h5>Review by {{ review.user_id }}</h5>
+                <h4>Review by {{ review.user_id }}</h4>
                 {{ review.body_text | markdown }}
             </div>
         {% endfor %}
     </div>
+
+    <h3>Add a review</h3>
     <form name="f1" action="{{ url_for('postReview') }}" method="post">
     	<input type="hidden" name="productId" value="{{ product.id }}">
     	Score:<select name="score">

@@ -1,16 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-<p>
+{% filter markdown %}
 Have you ever found yourself looking up customer reviews on some electronic product you're thinking about buying? Or maybe you don't know what you want yet, but you know you want a decent, inexpensive laptop that maybe isn't too heavy, but you just can't find what you quite like?
-
-</br></br>
 
 So then you find yourself sifting through amazon, ebay, cnet, newegg - the whole 9 yards to find satisfactory, credible customer reviews that could maybe point you in the right direction. But then you look at the clock - it's been a whole hour already! That's a whole lot of browsing!
 
-</br></br>
-
-We, at Aggrerate, try to stop this nonsense. Our mission is to <em>aggregate</em> reviews from all over the web, bringing you a very streamlined browsing experience for any electronic product you're considering buying. Just by putting the info for your product and hitting <tt>enter</tt>, you're well on your way to the store to pick up your new laptop. We provide a <b>free service</b> to all of our users, with no strings attached.
-
-
-</p>
+We, at Aggrerate, try to stop this nonsense. Our mission is to *aggregate* reviews from all over the web, bringing you a very streamlined browsing experience for any electronic product you're considering buying. Just by putting the info for your product and hitting `Enter`, you're well on your way to the store to pick up your new laptop. We provide a **free service** to all of our users, with no strings attached.
+{% endfilter %}
 {% endblock %}

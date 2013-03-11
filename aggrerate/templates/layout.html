@@ -24,12 +24,11 @@
                 </div>
             </div>
             <div id="menu">
-                <div class="navbar">
+                <div class="navbar navbar-inverse">
                 <div class="navbar-inner">
                 <ul class="nav">
                     <li {% if request.path=="/" %}class="active"{% endif %}><a href="/">Home</a></li>
                     <li {% if request.path=="/products" %}class="active"{% endif %}><a href="{{ url_for('products_list') }}">Products</a></li>
-                    <li {% if request.path=="/login" %}class="active"{% endif %}><a href="{{ url_for('login') }}">Log in</a></li>
                     <li {% if request.path=="/about" %}class="active"{% endif %}><a href="{{ url_for('about') }}">About</a></li>
                 </ul>
                 </div>

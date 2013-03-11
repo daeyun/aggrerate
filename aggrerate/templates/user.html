@@ -1,17 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
-{% for review in reviews %}
-    <h2>Review:</h2>
-    <p>
-        Date: {{ review['date']}}<br />
-        Score: {{ review['score']}}<br />
-        Body: {{ review['text'] }}<br />
-        {% if username == dispUsername %}
-            <form name="deleteReview" action="{{ url_for('deleteReview') }}" method="post">
-                <input type="hidden" value="{{ review['rev_id'] }}" name="review" />
-                <input type="submit" class="btn" value="delete">
-            </form>
-        {% endif %}
-    </p>
-{% endfor %}
+    <h2>Reviews</h2>
+    {% for review in reviews %}
+        <h3>Review:</h3>
+        <p>
+            Date: {{ review['date']}}<br />
+            Score: {{ review['score']}}<br />
+            Body: {{ review['text'] }}<br />
+            {% if username == dispUsername %}
+                <form name="deleteReview" action="{{ url_for('deleteReview') }}" method="post">
+                    <input type="hidden" value="{{ review['rev_id'] }}" name="review" />
+                    <input type="submit" class="btn" value="delete">
+                </form>
+            {% endif %}
+        </p>
+    {% endfor %}
 {% endblock %}

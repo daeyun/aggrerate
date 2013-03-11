@@ -2,8 +2,7 @@
 {% block body %}
     {% for product in products %}
     <div class="product">
-        <h4><a class="product_name" href="/products/{{ product.id }}">{{ product.manufacturer }} {{ product.name }}</a></h4>
-        in <a href="/category/{{ product.id }}"> {{ product.category }}</a>
+        <h2><a class="product_name" href="/products/{{ product.id }}">{{ product.manufacturer }} {{ product.name }}</a> <small>in <a href="/category/{{ product.id }}"> {{ product.category }}</a></small></h2>
     </div>
     {% endfor %}
 {% endblock %}
