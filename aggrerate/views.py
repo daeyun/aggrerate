@@ -166,12 +166,14 @@ def product(productId=None):
         date,
         score,
         body_text,
-        user_id
+        users.name AS username
     FROM
         reviews
     INNER JOIN user_reviews
+    INNER JOIN users
     ON
         reviews.id = user_reviews.review_id
+    AND user_reviews.user_id = users.id
     WHERE
         product_id = %s
     """, (productId,))

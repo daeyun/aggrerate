@@ -6,22 +6,35 @@
         <h3>User Reviews</h3>
         {% for review in user_reviews %}
             <div class="review">
-                <h4>Review by {{ review.user_id }}</h4>
+                <h4>Review by {{ review.username }}: {{ review.score }}</h4>
                 {{ review.body_text | markdown }}
             </div>
         {% endfor %}
     </div>
 
     <h3>Add a review</h3>
-    <form name="f1" action="{{ url_for('postReview') }}" method="post">
-    	<input type="hidden" name="productId" value="{{ product.id }}">
-    	Score:<select name="score">
-    		{% for i in range(11) %}
-    			<option value="{{i}}">{{i}}</option>
-    		{% endfor %}
-    	</select><br />
-    	<textarea name="reviewText"></textarea><br />
-    	<input type="submit" class="btn">
+    <form name="f1" action="{{ url_for('postReview') }}" method="post" class="form-horizontal">
+        <div class="control-group">
+            <input type="hidden" name="productId" value="{{ product.id }}">
+            <label for="score" class="control-label">Score</label>
+            <div class="controls">
+                <select name="score">
+                    {% for i in range(11) %}
+                        <option value="{{i}}">{{i}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <textarea name="reviewText" rows="20" class="input-xxlarge"></textarea>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" class="btn">
+            </div>
+        </div>
 	</form>
 </div>
 {% endblock %}
