@@ -18,7 +18,10 @@
             <h3>User Reviews</h3>
             {% for review in user_reviews %}
                 <div class="review">
-                    <h4>Review by {{ review.username }}: {{ review.score }}</h4>
+                    <h4>
+                        <a class="close" href="{{ url_for('delete_review', product_id=product.id, review_id=review.id) }}">&times;</a>
+                        Review by {{ review.username }}: {{ review.score }}
+                    </h4>
                     {{ review.body_text | markdown }}
                 </div>
             {% endfor %}
@@ -30,7 +33,7 @@
             <form name="f1" action="{{ url_for('scrape') }}" method="post" class="form-horizontal">
                 <fieldset>
                     <legend>Trigger a scrape</legend>
-                    <input type="hidden" name="productId" value="{{ product.id }}">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
 
                     <div class="control-group">
                         <label for="score" class="control-label" class="control-label">URL</label>
@@ -47,9 +50,9 @@
         </div>
 
         <div class="span6">
-            <form name="f2" action="#" method="post" class="form-horizontal">
+            <form name="f2" action="{{ url_for('post_product_review', product_id=product.id) }}" method="post" class="form-horizontal">
                 <fieldset>
-                    <legend>New review</legend>
+                    <legend>Write a review</legend>
                     <div class="control-group">
                         <label for="score" class="control-label">Score</label>
                         <div class="controls">

@@ -28,17 +28,18 @@ def reviews():
     return params
 
 @app.route("/users/<username>/")
-@util.templated("users.html")
-def userPage(username=None):
+@util.templated("user.html")
+def userPage(username):
     params = cookie_params(request)
+
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
         reviews.date AS date,
         reviews.score AS score,
-        reviews.product_id AS prod_id,
-        reviews.body_text AS text,
-        reviews.id AS rev_id
+        reviews.product_id AS product_id,
+        reviews.body_text AS body_text,
+        reviews.id AS id
     FROM
         users
     INNER JOIN user_reviews
@@ -46,20 +47,23 @@ def userPage(username=None):
     ON
         users.id = user_reviews.user_id
     AND user_reviews.review_id = reviews.id
+    WHERE
+        users.name = %s
     ORDER BY
         reviews.date DESC
-    """)
+    """, username)
     products = cur.fetchall()
+
     params['reviews'] = []
     for product in products:
         params['reviews'].append(product)
     params['dispUsername'] = username
+
     return params
 
-@app.route('/deleteReview', methods=["POST"])
-def deleteReview():
+@app.route('/delete_review/<review_id>/')
+def delete_review(review_id):
     params = cookie_params(request)
-    id_to_delete = request.form['review']
 
     (db, cur) = util.get_dict_cursor(None)
     cur.execute("""
@@ -67,12 +71,16 @@ def deleteReview():
         reviews
     WHERE
         id = %s
-    """, (id_to_delete))
+    """, (review_id,))
     db.commit()
 
-    return flask.redirect(flask.url_for('about'))
-    # Make this work, dunno how to redirect to variable things
-    # return flask.redirect(flask.url_for('users', username=params['username']))
+    flask.flash("Review deleted", "success")
+    if request.args.has_key('product_id'):
+        return flask.redirect(flask.url_for('product', product_id=request.args['product_id']))
+    elif request.args.has_key('user_id'):
+        return flask.redirect(flask.url_for('user', user_id=request.args['user_id']))
+    else:
+        flask.abort(404)
 
 @app.route("/login/")
 @util.templated("login.html")
@@ -136,9 +144,9 @@ def products_list():
     params['products'] = cur.fetchall()
     return params
 
-@app.route("/products/<productId>/", methods=["GET"])
+@app.route("/products/<product_id>/", methods=["GET"])
 @util.templated("product.html")
-def product(productId=None):
+def product(product_id=None):
     params = cookie_params(request)
 
     # Find the product properties
@@ -158,7 +166,7 @@ def product(productId=None):
     AND products.manufacturer_id = manufacturers.id
     WHERE
         products.id = %s
-    """, (productId,))
+    """, (product_id,))
     params['product'] = cur.fetchone()
 
     # Find the product scraped reviews
@@ -178,7 +186,7 @@ def product(productId=None):
     AND scraped_reviews.review_source_id = review_sources.id
     WHERE
         product_id = %s
-    """, (productId,))
+    """, (product_id,))
     params['scraped_reviews'] = cur.fetchall()
 
 
@@ -199,13 +207,13 @@ def product(productId=None):
     AND user_reviews.user_id = users.id
     WHERE
         product_id = %s
-    """, (productId,))
+    """, (product_id,))
     params['user_reviews'] = cur.fetchall()
 
     return params
 
-@app.route("/products/<productId>/", methods=["POST"])
-def post_product_review(productId):
+@app.route("/products/<product_id>/post_review/", methods=["POST"])
+def post_product_review(product_id):
     params = cookie_params(request)
 
     (db, cur) = util.get_dict_cursor()
@@ -214,7 +222,7 @@ def post_product_review(productId):
     INSERT INTO
         reviews
     VALUES (%s, %s, %s, %s, %s)
-    """, (None, dtstr, request.form['score'], productId,
+    """, (None, dtstr, request.form['score'], product_id,
             request.form['reviewText'])
     )
     cur.execute("""
@@ -239,7 +247,7 @@ def post_product_review(productId):
     db.commit()
 
     flask.flash("Posted review!", "success")
-    return flask.redirect(flask.url_for('product', productId=productId))
+    return flask.redirect(flask.url_for('product', product_id=product_id))
 
 @app.route('/scrape/', methods=['POST'])
 def scrape():
