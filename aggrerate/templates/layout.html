@@ -11,7 +11,7 @@
         <script type="text/javascript" src="/static/js/script.js"></script> 
     </head> 
     <body> 
-        <div id="container">
+        <div class="container">
             <div id="heading">
                 <h1>Aggrerate</h1>
                 <em>Aggregated Tech Reviews</em>
@@ -34,6 +34,11 @@
                 </div>
                 </div>
             </div>
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
             <div id="content">
                 {% block body %}{% endblock %}
             </div>

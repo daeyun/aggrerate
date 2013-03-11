@@ -129,7 +129,7 @@ def products_list():
     params['products'] = cur.fetchall()
     return render_template('products_list.html', **params)
 
-@app.route('/products/<productId>/')
+@app.route("/products/<productId>/", methods=["GET"])
 def product(productId=None):
     params = cookie_params(request)
 
@@ -196,33 +196,19 @@ def product(productId=None):
 
     return render_template('product.html', **params)
 
-@app.route('/postReview/', methods=['POST'])
-def postReview():
+@app.route("/products/<productId>/", methods=["POST"])
+def post_product_review(productId):
     params = cookie_params(request)
-    username = request.cookies.get('username')
 
     (db, cur) = util.get_dict_cursor()
-
     dtstr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-
     cur.execute("""
     INSERT INTO
         reviews
     VALUES (%s, %s, %s, %s, %s)
-    """, (None, dtstr, request.form['score'], request.form['productId'],
+    """, (None, dtstr, request.form['score'], productId,
             request.form['reviewText'])
     )
-
-    cur.execute("""
-    SELECT
-        id
-    FROM
-        users
-    WHERE
-        name = %s
-    """, (username,)
-    )
-
     cur.execute("""
     INSERT INTO
         user_reviews
@@ -239,12 +225,13 @@ def postReview():
                     users.name = %s
             )
         )
-    """, (None, username)
+    """, (None, params['username'])
     )
 
     db.commit()
 
-    return render_template('successfulReview.html', **params)
+    flask.flash("Posted review!", "success")
+    return flask.redirect(flask.url_for('product', productId=productId))
 
 @app.route('/scrape/', methods=['POST'])
 def scrape():

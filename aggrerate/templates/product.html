@@ -3,59 +3,31 @@
 <div class="product">
     <h2>{{ product.manufacturer }} {{ product.name }}</h2>
 
-    <div class="scraped_reviews">
-        <h3>Scraped Reviews</h3>
-        {% for review in scraped_reviews %}
-            <div class="review">
-                <h4>Review by {{ review.source_name }}: {{ review.score }}</h4>
-                {{ review.body_text | markdown }}
-            </div>
-        {% endfor %}
-    </div>
+    <div class="row">
+        <div class="scraped_reviews span6">
+            <h3>Scraped Reviews</h3>
+            {% for review in scraped_reviews %}
+                <div class="review">
+                    <h4>Review by {{ review.source_name }}: {{ review.score }}</h4>
+                    {{ review.body_text | markdown }}
+                </div>
+            {% endfor %}
+        </div>
 
-    <div class="user_reviews">
-        <h3>User Reviews</h3>
-        {% for review in user_reviews %}
-            <div class="review">
-                <h4>Review by {{ review.username }}: {{ review.score }}</h4>
-                {{ review.body_text | markdown }}
-            </div>
-        {% endfor %}
+        <div class="user_reviews span6">
+            <h3>User Reviews</h3>
+            {% for review in user_reviews %}
+                <div class="review">
+                    <h4>Review by {{ review.username }}: {{ review.score }}</h4>
+                    {{ review.body_text | markdown }}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
     <div class="row">
         <div class="span6">
-            <form name="f1" action="{{ url_for('postReview') }}" method="post" class="form-horizontal">
-                <fieldset>
-                    <legend>New review</legend>
-                    <input type="hidden" name="productId" value="{{ product.id }}">
-
-                    <div class="control-group">
-                        <label for="score" class="control-label" class="control-label">Score</label>
-                        <div class="controls">
-                            <select name="score" class="input-mini">
-                                {% for i in range(11) %}
-                                <option value="{{i}}">{{i}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <div class="controls">
-                            <textarea name="reviewText" rows="20" class="input-xlarge"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn">Post</button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
-
-        <div class="span5">
-            <form name="f2" action="{{ url_for('scrape') }}" method="post" class="form-horizontal">
+            <form name="f1" action="{{ url_for('scrape') }}" method="post" class="form-horizontal">
                 <fieldset>
                     <legend>Trigger a scrape</legend>
                     <input type="hidden" name="productId" value="{{ product.id }}">
@@ -69,6 +41,35 @@
 
                     <div class="form-actions">
                         <button type="submit" class="btn">Scrape</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="span6">
+            <form name="f2" action="#" method="post" class="form-horizontal">
+                <fieldset>
+                    <legend>New review</legend>
+                    <div class="control-group">
+                        <label for="score" class="control-label">Score</label>
+                        <div class="controls">
+                            <select name="score" class="input-mini">
+                                {% for i in range(11) %}
+                                <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="reviewText" class="control-label">Review</label>
+                        <div class="controls">
+                            <textarea name="reviewText" rows="20" class="input-xlarge"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Post</button>
                     </div>
                 </fieldset>
             </form>
