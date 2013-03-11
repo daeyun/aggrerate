@@ -21,10 +21,12 @@
     padding:20px;
     padding-top:5px;
 }
-.product h4 {
-    display:inline;
+.product {
+    margin-bottom: 20px;
 }
-.product>a.product_name {
+.product h4 {
+}
+.product h4 a.product_name {
     color:#343434;
 }
 .user_info {

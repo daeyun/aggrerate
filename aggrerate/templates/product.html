@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="product">
-    <h4>{{ productId }}</h4>
+    <h4>{{ product.manufacturer }} {{ product.name }}</h4>
     <form name="f1" action="{{ url_for('postReview') }}" method="post">
     	<input type="hidden" name="productId" value="{{ productId }}">
     	Score:<select name="score">

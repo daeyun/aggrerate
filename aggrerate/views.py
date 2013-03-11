@@ -42,7 +42,7 @@ def userPage(username=None):
     INNER JOIN reviews
     ON
         users.id = user_reviews.user_id
-    AND user_reviews.review_id = reviews.id;
+    AND user_reviews.review_id = reviews.id
     ORDER BY
         reviews.datetime DESC
     """)
@@ -128,20 +128,38 @@ def products_list():
     INNER JOIN manufacturers
     ON
         products.category_id = product_categories.id
-    AND products.manufacturer_id = manufacturers.id;
+    AND products.manufacturer_id = manufacturers.id
     ORDER BY
         products.id DESC
     """)
-    products = cur.fetchall()
-    params['products'] = []
-    for product in products:
-        params['products'].append(product)
-    return render_template('reviews.html', **params)
+    params['products'] = cur.fetchall()
+    return render_template('products_list.html', **params)
 
 @app.route('/products/<productId>/')
-def enterReview(productId=None):
+def product(productId=None):
     params = cookie_params(request)
-    return render_template('enterReview.html', productId=productId, **params)
+
+    # Find the product properties
+    cur = get_dict_cursor()
+    cur.execute("""
+    SELECT
+        manufacturers.name AS manufacturer,
+        products.id AS id,
+        products.name AS name,
+        product_categories.name AS category
+    FROM
+        products
+    INNER JOIN product_categories
+    INNER JOIN manufacturers
+    ON
+        products.category_id = product_categories.id
+    AND products.manufacturer_id = manufacturers.id
+    WHERE
+        products.id = %s
+    """, (productId,))
+    params['product'] = cur.fetchone()
+
+    return render_template('product.html', **params)
 
 @app.route('/postReview/', methods=['POST'])
 def postReview():
