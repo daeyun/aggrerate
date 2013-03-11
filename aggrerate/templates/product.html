@@ -6,12 +6,12 @@
         {% for review in user_reviews %}
             <div class="review">
                 <h5>Review by {{ review.user_id }}</h5>
-                {{ review.body_text }}
+                {{ review.body_text | markdown }}
             </div>
         {% endfor %}
     </div>
     <form name="f1" action="{{ url_for('postReview') }}" method="post">
-    	<input type="hidden" name="productId" value="{{ productId }}">
+    	<input type="hidden" name="productId" value="{{ product.id }}">
     	Score:<select name="score">
     		{% for i in range(11) %}
     			<option value="{{i}}">{{i}}</option>
