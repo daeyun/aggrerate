@@ -9,22 +9,26 @@ def cookie_params(request):
     return params
 
 @app.route('/')
+@util.templated("main.html")
 def main():
     params = cookie_params(request)
     # params = {'username': request.cookies.get['username']}
-    return render_template('main.html', **params)
+    return params
 
-@app.route('/about')
+@app.route("/about/")
+@util.templated("about.html")
 def about():
     params = cookie_params(request)
-    return render_template('about.html', **params)
+    return params
 
-@app.route('/reviews')
+@app.route("/reviews/")
+@util.templated("reviews.html")
 def reviews():
     params = cookie_params(request)
-    return render_template('reviews.html', **params)
+    return params
 
-@app.route('/users/<username>')
+@app.route("/users/<username>/")
+@util.templated("users.html")
 def userPage(username=None):
     params = cookie_params(request)
     (db, cur) = util.get_dict_cursor()
@@ -50,7 +54,7 @@ def userPage(username=None):
     for product in products:
         params['reviews'].append(product)
     params['dispUsername'] = username
-    return render_template('user.html', **params)
+    return params
 
 @app.route('/deleteReview', methods=["POST"])
 def deleteReview():
@@ -70,12 +74,13 @@ def deleteReview():
     # Make this work, dunno how to redirect to variable things
     # return flask.redirect(flask.url_for('users', username=params['username']))
 
-@app.route('/login')
+@app.route("/login/")
+@util.templated("login.html")
 def login():
     params = cookie_params(request)
-    return render_template('login.html', **params)
+    return params
 
-@app.route('/attemptLogin')
+@app.route("/attemptLogin/")
 def attemptLogin():
     params = cookie_params(request)
     if 'username' in flask.request.args.keys() and 'password' in request.args.keys():
@@ -85,15 +90,16 @@ def attemptLogin():
             return resp
     return flask.redirect(flask.url_for('login'))
 
-@app.route('/logout')
+@app.route("/logout/")
 def logout():
     resp = flask.make_response(render_template('main.html'))
     resp.set_cookie('username', '', expires=0)
     return resp
 
-@app.route('/signup')
+@app.route("/signup/")
+@util.templated("signup.html")
 def signup():
-    return render_template('signup.html')
+    return {}
 
 @app.route('/attemptSignup', methods=["POST"])
 def attemptSignup():
@@ -105,7 +111,8 @@ def attemptSignup():
     else:
         return flask.redirect(flask.url_for('signup', retry=True))
 
-@app.route('/products/')
+@app.route("/products/")
+@util.templated("products_list.html")
 def products_list():
     params = cookie_params(request)
 
@@ -127,9 +134,10 @@ def products_list():
         products.id DESC
     """)
     params['products'] = cur.fetchall()
-    return render_template('products_list.html', **params)
+    return params
 
 @app.route("/products/<productId>/", methods=["GET"])
+@util.templated("product.html")
 def product(productId=None):
     params = cookie_params(request)
 
@@ -194,7 +202,7 @@ def product(productId=None):
     """, (productId,))
     params['user_reviews'] = cur.fetchall()
 
-    return render_template('product.html', **params)
+    return params
 
 @app.route("/products/<productId>/", methods=["POST"])
 def post_product_review(productId):
