@@ -33,18 +33,19 @@
             <form name="f1" action="{{ url_for('scrape') }}" method="post" class="form-horizontal">
                 <fieldset>
                     <legend>Trigger a scrape</legend>
-                    <input type="hidden" name="product_id" value="{{ product.id }}">
 
                     <div class="control-group">
-                        <label for="score" class="control-label" class="control-label">URL</label>
+                        <label for="url" class="control-label">URL</label>
                         <div class="controls">
-                            <input name="url" type="text" class="input-medium">
+                            <input name="url" type="text" class="input-large">
                         </div>
                     </div>
 
                     <div class="form-actions">
                         <button type="submit" class="btn">Scrape</button>
                     </div>
+
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
                 </fieldset>
             </form>
         </div>
@@ -53,14 +54,11 @@
             <form name="f2" action="{{ url_for('post_product_review', product_id=product.id) }}" method="post" class="form-horizontal">
                 <fieldset>
                     <legend>Write a review</legend>
+
                     <div class="control-group">
                         <label for="score" class="control-label">Score</label>
                         <div class="controls">
-                            <select name="score" class="input-mini">
-                                {% for i in range(11) %}
-                                <option value="{{i}}">{{i}}</option>
-                                {% endfor %}
-                            </select>
+                            <input type="number" min="0" max="10" step="1" value="10" class="input-mini">
                         </div>
                     </div>
 
