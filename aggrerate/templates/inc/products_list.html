@@ -33,7 +33,11 @@
         {% endif %}
         {% if has_stddev %}
             <td>
-                {{ product.stddev }}
+                {% if product.stddev != None %}
+                    {{ product.stddev }}
+                {% else %}
+                    <span class="muted">&mdash;</span>
+                {% endif %}
             </td>
         {% endif %}
     </tr>
