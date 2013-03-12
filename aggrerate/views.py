@@ -236,6 +236,7 @@ def add_product():
         )
     db.commit()
 
+    flask.flash('Added new product!', 'success')
     return redir
 
 @app.route("/products/<product_id>/", methods=["GET"])
