@@ -142,8 +142,10 @@ def products_list():
         manufacturers.name AS manufacturer,
         product_categories.id AS category_id,
         product_categories.name AS category,
-        COUNT(scraped_reviews.id) AS scraped_reviews_count,
-        CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score
+        COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
+        CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
+        COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
+        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
         products
     INNER JOIN product_categories
@@ -152,6 +154,8 @@ def products_list():
         ON (products.manufacturer_id = manufacturers.id)
     LEFT JOIN (reviews, scraped_reviews)
         ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+    LEFT JOIN (reviews AS reviews_u, user_reviews)
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
     GROUP BY
         products.id
     ORDER BY
@@ -172,6 +176,9 @@ def products_list():
 
     params['has_categories'] = True
     params['has_avg_scores'] = True
+
+    # Uncomment this to include average user scores in the products table
+    # params['has_avg_user_scores'] = True
 
     return params
 
@@ -505,15 +512,19 @@ def product_category(category_id):
         products.id AS id,
         products.name AS name,
         manufacturers.name AS manufacturer,
-        COUNT(scraped_reviews.id) AS scraped_reviews_count,
+        COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
         CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
-        CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev
+        CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev,
+        COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
+        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
         products
     INNER JOIN manufacturers
         ON (products.manufacturer_id = manufacturers.id)
     LEFT JOIN (reviews, scraped_reviews)
         ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+    LEFT JOIN (reviews AS reviews_u, user_reviews)
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
     WHERE
         products.category_id = %s
     GROUP BY
@@ -524,7 +535,8 @@ def product_category(category_id):
     """, (category_id,))
     params['products'] = cur.fetchall()
 
-    params['has_avg_scores'] = True
-    params['has_stddev']     = True
+    params['has_avg_scores']      = True
+    params['has_avg_user_scores'] = True
+    params['has_stddev']          = True
 
     return params

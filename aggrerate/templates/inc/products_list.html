@@ -11,6 +11,9 @@
         {% if has_stddev %}
             <th>Standard deviation</th>
         {% endif %}
+        {% if has_avg_user_scores %}
+            <th>Average user score</th>
+        {% endif %}
     </tr>
     {% for product in products %}
     <tr>
@@ -21,7 +24,7 @@
         {% endif %}
         {% if has_avg_scores %}
             <td>
-                {%- if product.avg_score -%}
+                {%- if product.avg_score != None -%}
                     {{- product.avg_score }}
                         {% if product.scraped_reviews_count %}
                             <span class="muted">&mdash; {{ product.scraped_reviews_count }} ratings</span>
@@ -37,6 +40,18 @@
                     {{ product.stddev }}
                 {% else %}
                     <span class="muted">&mdash;</span>
+                {% endif %}
+            </td>
+        {% endif %}
+        {% if has_avg_user_scores %}
+            <td>
+                {%- if product.avg_user_score != None -%}
+                    {{- product.avg_user_score }}
+                        {% if product.user_reviews_count %}
+                            <span class="muted">&mdash; {{ product.user_reviews_count }} ratings</span>
+                        {% endif %}
+                {%- else -%}
+                    <span class="muted">No ratings</span>
                 {% endif %}
             </td>
         {% endif %}
