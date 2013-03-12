@@ -414,7 +414,7 @@ def product_category(category_id):
         manufacturers.name AS manufacturer,
         COUNT(scraped_reviews.id) AS scraped_reviews_count,
         CAST(AVG(reviews.score) AS DECIMAL(2, 1)) AS avg_score,
-        CAST(STDDEV_SAMP(reviews.score) AS DECIMAL(2, 2)) AS stddev_samp
+        CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev
     FROM
         products
     INNER JOIN manufacturers
