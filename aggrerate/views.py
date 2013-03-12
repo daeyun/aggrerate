@@ -59,7 +59,8 @@ def user_profile(username):
     WHERE
         users.name = %s
     ORDER BY
-        reviews.date DESC
+        reviews.date DESC,
+        products.name ASC
     """, username)
     products = cur.fetchall()
 
@@ -154,7 +155,8 @@ def products_list():
     GROUP BY
         products.id
     ORDER BY
-        avg_score DESC
+        avg_score DESC,
+        products.name ASC
     """)
     params['products'] = cur.fetchall()
     params['categories'] = util.get_product_categories()
@@ -517,7 +519,8 @@ def product_category(category_id):
     GROUP BY
         products.id
     ORDER BY
-        avg_score DESC
+        avg_score DESC,
+        products.name ASC
     """, (category_id,))
     params['products'] = cur.fetchall()
 
