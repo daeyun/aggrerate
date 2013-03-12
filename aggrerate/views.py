@@ -76,15 +76,28 @@ def delete_review(review_id):
     params = cookie_params(request)
 
     (db, cur) = util.get_dict_cursor(None)
-    cur.execute("""
+    deleted = cur.execute("""
     DELETE FROM
         reviews
     WHERE
         id = %s
-    """, (review_id,))
+    AND id IN
+        (
+            SELECT
+                review_id
+            FROM
+                user_reviews
+            INNER JOIN users ON (users.id = user_reviews.user_id)
+            WHERE
+                users.name = %s
+        )
+    """, (review_id, params['username']))
     db.commit()
 
-    flask.flash("Review deleted", "success")
+    if deleted:
+        flask.flash('Review deleted', 'success')
+    else:
+        flask.flash('Unable delete review (written by somebody else?)', 'error')
     if request.args.has_key('product_id'):
         return flask.redirect(flask.url_for('product', product_id=request.args['product_id']))
     elif request.args.has_key('username'):
