@@ -412,14 +412,11 @@ def product_category(category_id):
         products.id AS id,
         products.name AS name,
         manufacturers.name AS manufacturer,
-        product_categories.id AS category_id,
-        product_categories.name AS category,
         COUNT(scraped_reviews.id) AS scraped_reviews_count,
-        CAST(AVG(reviews.score) AS DECIMAL(2, 1)) AS avg_score
+        CAST(AVG(reviews.score) AS DECIMAL(2, 1)) AS avg_score,
+        CAST(STDDEV_SAMP(reviews.score) AS DECIMAL(2, 2)) AS stddev_samp
     FROM
         products
-    INNER JOIN product_categories
-        ON (products.category_id = product_categories.id)
     INNER JOIN manufacturers
         ON (products.manufacturer_id = manufacturers.id)
     LEFT JOIN (reviews, scraped_reviews)
@@ -431,7 +428,7 @@ def product_category(category_id):
     """, (category_id,))
     params['products'] = cur.fetchall()
 
-    params['has_categories'] = True
     params['has_avg_scores'] = True
+    params['has_stddev']     = True
 
     return params
