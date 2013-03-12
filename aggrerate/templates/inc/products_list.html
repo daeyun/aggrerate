@@ -1,6 +1,33 @@
-{% for product in products %}
-<div class="product">
-    <h3><a class="product_name" href="/products/{{ product.id }}">{{ product.manufacturer }} {{ product.name }}</a> {% if product.category %}
-        <small>in <a href="{{ url_for('product_category', category_id=product.category_id) }}"> {{ product.category }}</a></small>{% endif %}</h3>
-</div>
-{% endfor %}
+<table class="table">
+    <tr>
+        <th>Manufacturer</th>
+        <th>Product</th>
+        {% if has_categories %}
+            <th>Category</th>
+        {% endif %}
+        {% if has_avg_scores %}
+            <th>Average score</th>
+        {% endif %}
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td>{{ product.manufacturer }}</td>
+        <td><a class="product_name" href="{{ url_for('product', product_id=product.id) }}">{{ product.name }}</a></td>
+        {% if has_categories %}
+            <td><a href="{{ url_for('product_category', category_id=product.category_id) }}"> {{ product.category }}</a></td>
+        {% endif %}
+        {% if has_avg_scores %}
+            <td>
+            {%- if product.avg_score -%}
+                {{- product.avg_score }}
+                    {% if product.scraped_reviews_count %}
+                        <span class="muted">&mdash; {{ product.scraped_reviews_count }} ratings</span>
+                    {% endif %}
+            {%- else -%}
+                <span class="muted">No ratings</span>
+            {% endif %}
+            </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>

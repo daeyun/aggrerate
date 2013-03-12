@@ -34,3 +34,17 @@ def get_dict_cursor(db=None):
     if not db:
         db = get_db()
     return (db, db.cursor(mdb.cursors.DictCursor))
+
+# Database helpers
+def get_product_categories(cur=None):
+    if not cur:
+        (_, cur) = get_dict_cursor()
+
+    cur.execute("""
+    SELECT
+        id,
+        name
+    FROM
+        product_categories
+    """)
+    return cur.fetchall()

@@ -1,5 +1,19 @@
 {% extends "layout.html" %}
 {% block body %}
-    <h2>{{ category }}</h2>
-    {% include "inc/products_list.html" %}
+    <div class="row">
+        <div class="span8">
+            <h2>{{ category }}</h2>
+            {% include "inc/products_list.html" %}
+        </div>
+        <div class="span4">
+            <h3>Other categories</h3>
+            <ul>
+                {% for category_iter in categories %}
+                    {% if category_iter.name != category %}
+                        <li><a href="{{ url_for('product_category', category_id=category_iter.id) }}">{{ category_iter.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}

@@ -136,31 +136,26 @@ def products_list():
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
-        manufacturers.name AS manufacturer,
         products.id AS id,
         products.name AS name,
+        manufacturers.name AS manufacturer,
         product_categories.id AS category_id,
-        product_categories.name AS category
+        product_categories.name AS category,
+        COUNT(scraped_reviews.id) AS scraped_reviews_count,
+        CAST(AVG(reviews.score) AS DECIMAL(2, 1)) AS avg_score
     FROM
         products
     INNER JOIN product_categories
+        ON (products.category_id = product_categories.id)
     INNER JOIN manufacturers
-    ON
-        products.category_id = product_categories.id
-    AND products.manufacturer_id = manufacturers.id
-    ORDER BY
-        products.id DESC
+        ON (products.manufacturer_id = manufacturers.id)
+    LEFT JOIN (reviews, scraped_reviews)
+        ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+    GROUP BY
+        products.id
     """)
     params['products'] = cur.fetchall()
-
-    cur.execute("""
-    SELECT
-        id,
-        name
-    FROM
-        product_categories
-    """)
-    params['categories'] = cur.fetchall()
+    params['categories'] = util.get_product_categories()
 
     cur.execute("""
     SELECT
@@ -171,6 +166,8 @@ def products_list():
     """)
     params['manufacturers'] = cur.fetchall()
 
+    params['has_categories'] = True
+    params['has_avg_scores'] = True
 
     return params
 
@@ -400,31 +397,40 @@ def product_category(category_id):
     params = cookie_params(request)
 
     (db, cur) = util.get_dict_cursor()
-    cur.execute("""
-    SELECT
-        name
-    FROM
-        product_categories
-    WHERE
-        id = %s
-    """, (category_id,)
-    )
-    params['category'] = cur.fetchone()['name']
+
+    # We request *all* categories so that we can display them on the right
+    # sidebar, then pick out just the one we need for this page from that.
+    params['categories'] = util.get_product_categories(cur)
+    params['category'] = filter(
+            lambda d: d['id'] == int(category_id),
+            params['categories']
+        )[0]['name']
 
     cur.execute("""
     SELECT
-        products.id AS product_id,
+        products.id AS id,
         products.name AS name,
-        manufacturers.name AS manufacturer
+        manufacturers.name AS manufacturer,
+        product_categories.id AS category_id,
+        product_categories.name AS category,
+        COUNT(scraped_reviews.id) AS scraped_reviews_count,
+        CAST(AVG(reviews.score) AS DECIMAL(2, 1)) AS avg_score
     FROM
         products
+    INNER JOIN product_categories
+        ON (products.category_id = product_categories.id)
     INNER JOIN manufacturers
-    ON
-        products.manufacturer_id = manufacturers.id
+        ON (products.manufacturer_id = manufacturers.id)
+    LEFT JOIN (reviews, scraped_reviews)
+        ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
     WHERE
         products.category_id = %s
+    GROUP BY
+        products.id
     """, (category_id,))
     params['products'] = cur.fetchall()
 
+    params['has_categories'] = True
+    params['has_avg_scores'] = True
 
     return params
