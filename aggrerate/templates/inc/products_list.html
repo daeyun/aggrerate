@@ -1,0 +1,6 @@
+{% for product in products %}
+<div class="product">
+    <h3><a class="product_name" href="/products/{{ product.id }}">{{ product.manufacturer }} {{ product.name }}</a> {% if product.category %}
+        <small>in <a href="{{ url_for('product_category', category_id=product.category_id) }}"> {{ product.category }}</a></small>{% endif %}</h3>
+</div>
+{% endfor %}

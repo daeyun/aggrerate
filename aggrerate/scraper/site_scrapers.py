@@ -52,7 +52,7 @@ class CNETScraper(ReviewScraper):
 
 @register_scraper
 class GdgtScraper(ReviewScraper):
-    site_name = "Gdgt"
+    pretty_site_name = site_name = "Gdgt"
 
     def __init__(self, url):
         super(self.__class__, self).__init__(url)
@@ -76,6 +76,7 @@ class GdgtScraper(ReviewScraper):
 @register_scraper
 class PCMagScraper(ReviewScraper):
     site_name = "PCMag"
+    pretty_site_name = "PCMag.com"
 
     def __init__(self, url):
         super(self.__class__, self).__init__(url)
@@ -95,5 +96,28 @@ class PCMagScraper(ReviewScraper):
                 '\n\n'.join(itertools.chain(
                     self.soup.find(class_="review-body").stripped_strings
                 ))
+        except:
+            print "Unable to find score on given page"
+
+@register_scraper
+class WiredScraper(ReviewScraper):
+    pretty_site_name = site_name = "Wired"
+
+    def __init__(self, url):
+        super(self.__class__, self).__init__(url)
+
+    @classmethod
+    def matches_url(cls, url):
+        return "wired.com" in url
+
+    def parse_page(self):
+        self.download_page()
+        try:
+            self.score = float(self.soup.find("span", class_="rating").text. \
+                split(' ')[1].split('/')[0])
+            self.tag = self.soup.find(class_="explanation").text
+            self.body = '\n\n'.join(itertools.chain(
+                self.soup.find(class_="entry").stripped_strings
+            ))
         except:
             print "Unable to find score on given page"

@@ -20,18 +20,18 @@
 }
 h2 {
     font-size: 1.8em;
-    margin: 5px 0;
 }
 h3 {
     font-size: 1.3em;
+    margin: 0;
 }
 h4 {
     font-size: 1.1em;
 }
 .product {
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
-.product h2 a.product_name {
+.product h3 a.product_name {
     color:#343434;
 }
 .user_info {
@@ -40,4 +40,7 @@ h4 {
 }
 .review form {
     display: inline;
+}
+.row {
+    margin-bottom: 20px;
 }

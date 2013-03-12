@@ -1,8 +1,62 @@
 {% extends "layout.html" %}
 {% block body %}
-    {% for product in products %}
-    <div class="product">
-        <h2><a class="product_name" href="/products/{{ product.id }}">{{ product.manufacturer }} {{ product.name }}</a> <small>in <a href="/category/{{ product.id }}"> {{ product.category }}</a></small></h2>
+    <div class="row">
+        <div class="span8">
+            <h2>Recent products</h2>
+            {% include "inc/products_list.html" %}
+        </div>
+        <div class="span4">
+            <h3>Product categories</h3>
+            <ul>
+                {% for category in categories %}
+                <li><a href="{{ url_for('product_category', category_id=category.id) }}">{{ category.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    {% endfor %}
+    <div class="row">
+        <div class="span7">
+            <form name="f1" action="{{ url_for('add_product') }}" method="post" class="form-horizontal">
+                <fieldset>
+                    <legend>Add a product</legend>
+
+                    <div class="control-group">
+                        <label for="product_name" class="control-label">Name</label>
+                        <div class="controls">
+                            <input type="text" name="product_name">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="manufacturer_present" class="control-label">Manufacturer</label>
+                        <div class="controls">
+                            <select name="manufacturer_present" class="input-small">
+                                <option value="">&mdash;</option>
+                                {% for manufacturer in manufacturers %}
+                                    <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+                                {% endfor %}
+                            </select>
+                            &nbsp;or&nbsp;
+                            <input type="text" name="manufacturer_not_present" class="input-medium">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="category" class="control-label">Category</label>
+                        <div class="controls">
+                            <select name="category_id" class="input-small">
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Create</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
 {% endblock %}

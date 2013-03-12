@@ -139,6 +139,7 @@ def products_list():
         manufacturers.name AS manufacturer,
         products.id AS id,
         products.name AS name,
+        product_categories.id AS category_id,
         product_categories.name AS category
     FROM
         products
@@ -151,7 +152,94 @@ def products_list():
         products.id DESC
     """)
     params['products'] = cur.fetchall()
+
+    cur.execute("""
+    SELECT
+        id,
+        name
+    FROM
+        product_categories
+    """)
+    params['categories'] = cur.fetchall()
+
+    cur.execute("""
+    SELECT
+        id,
+        name
+    FROM
+        manufacturers
+    """)
+    params['manufacturers'] = cur.fetchall()
+
+
     return params
+
+@app.route('/products/add_product/', methods=['POST'])
+def add_product():
+    params = cookie_params(request)
+
+    redir = flask.redirect(flask.url_for('products_list'))
+
+    # Prepare form values
+    product_name = request.form['product_name']
+    category_id  = request.form['category_id']
+
+    mfg_in_db     = request.form['manufacturer_present']
+    mfg_not_in_db = request.form['manufacturer_not_present']
+
+    # Verif
+    invalid = False
+    if not product_name:
+        flask.flash('Product name required', 'error')
+        invalid = True
+    if not (mfg_in_db or mfg_not_in_db):
+        flask.flash('Manufacturer must either be selected or written', 'error')
+        invalid = True
+
+    if invalid:
+        return redir
+
+    # Insert into database
+    (db, cur) = util.get_dict_cursor()
+    if mfg_in_db:
+        cur.execute("""
+        INSERT INTO
+            products
+        VALUES
+            (
+                NULL,
+                %s,
+                %s,
+                %s
+            )
+        """, (product_name, category_id, mfg_in_db)
+        )
+    else:
+        cur.execute("""
+        INSERT INTO
+            manufacturers
+        VALUES
+            (
+                NULL,
+                %s
+            )
+        """, (request.form['manufacturer_not_present'])
+        )
+        cur.execute("""
+        INSERT INTO
+            products
+        VALUES
+            (
+                NULL,
+                %s,
+                %s,
+                LAST_INSERT_ID()
+            )
+        """, (product_name, category_id)
+        )
+    db.commit()
+
+    return redir
 
 @app.route("/products/<product_id>/", methods=["GET"])
 @util.templated("product.html")
@@ -305,3 +393,38 @@ def scrape():
 
     flask.flash("Successfully scraped. They gave this product a %s." % scraper.score, "success")
     return redir
+
+@app.route('/products/categories/<category_id>/')
+@util.templated('category.html')
+def product_category(category_id):
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        name
+    FROM
+        product_categories
+    WHERE
+        id = %s
+    """, (category_id,)
+    )
+    params['category'] = cur.fetchone()['name']
+
+    cur.execute("""
+    SELECT
+        products.id AS product_id,
+        products.name AS name,
+        manufacturers.name AS manufacturer
+    FROM
+        products
+    INNER JOIN manufacturers
+    ON
+        products.manufacturer_id = manufacturers.id
+    WHERE
+        products.category_id = %s
+    """, (category_id,))
+    params['products'] = cur.fetchall()
+
+
+    return params
