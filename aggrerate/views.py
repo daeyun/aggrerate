@@ -186,7 +186,7 @@ def add_product():
     mfg_in_db     = request.form['manufacturer_present']
     mfg_not_in_db = request.form['manufacturer_not_present']
 
-    # Verif
+    # Verify data
     invalid = False
     if not product_name:
         flask.flash('Product name required', 'error')
@@ -214,16 +214,7 @@ def add_product():
         """, (product_name, category_id, mfg_in_db)
         )
     else:
-        cur.execute("""
-        INSERT INTO
-            manufacturers
-        VALUES
-            (
-                NULL,
-                %s
-            )
-        """, (request.form['manufacturer_not_present'])
-        )
+        util.add_manufacturer(cur, request.form['manufacturer_not_present'])
         cur.execute("""
         INSERT INTO
             products
@@ -240,6 +231,104 @@ def add_product():
 
     flask.flash('Added new product!', 'success')
     return redir
+
+@app.route('/products/<product_id>/edit/', methods=['GET', 'POST'])
+def edit_product(product_id):
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor()
+
+    if request.method == 'GET':
+        # We need to query the database for all the existing properties so that
+        # we can autofill the form. We also need the options for the
+        # manufacturers, etc.
+        cur.execute("""
+        SELECT
+            id,
+            name,
+            category_id,
+            manufacturer_id
+        FROM
+            products
+        WHERE
+            id = %s
+        """, (product_id,)
+        )
+        params['product'] = cur.fetchone()
+        params['manufacturers'] = util.get_manufacturers(cur)
+        params['categories'] = util.get_product_categories(cur)
+        return render_template('product_edit.html', **params)
+
+    # Otherwise, we're a POST, so we need to update the database.
+
+    # Prepare form values
+    product_name = request.form['product_name']
+    category_id  = request.form['category_id']
+
+    mfg_in_db     = request.form['manufacturer_present']
+    mfg_not_in_db = request.form['manufacturer_not_present']
+
+    # Verify data
+    invalid = False
+    if not product_name:
+        flask.flash('Product name required', 'error')
+        invalid = True
+    if not (mfg_in_db or mfg_not_in_db):
+        flask.flash('Manufacturer must either be selected or written', 'error')
+        invalid = True
+
+    if invalid:
+        # We need to rerender the form with what they submitted. This is a
+        # pain in the ass.
+        #
+        # The `manufacturer_id` is the tricky bit. It should only be possible
+        # to have an invalid state when they selected nothing in both fields,
+        # so I think we can just not give an ID here.
+        params['product'] = {
+            'id': product_id,
+            'name': product_name,
+            'category_id': category_id,
+            'manufacturer_id': None
+        }
+        params['manufacturers'] = util.get_manufacturers(cur)
+        params['categories'] = util.get_product_categories(cur)
+        return render_template('product_edit.html', **params)
+
+    # FIXME: Delete the old manufacturer if it is now orphaned. (Can this be
+    # done in SQL?)
+
+    # FIXME: Don't let duplicates get into the manufacturers database! Ew ew ew!
+
+    # Update the database
+    if mfg_in_db:
+        cur.execute("""
+        UPDATE
+            products
+        SET
+            name = %s,
+            category_id = %s,
+            manufacturer_id = %s
+        WHERE
+            id = %s
+        """, (product_name, category_id, mfg_in_db, product_id)
+        )
+    else:
+        util.add_manufacturer(cur, request.form['manufacturer_not_present'])
+        cur.execute("""
+        UPDATE
+            products
+        SET
+            name = %s,
+            category_id = %s,
+            manufacturer_id = LAST_INSERT_ID()
+        WHERE
+            id = %s
+        """, (product_name, category_id, product_id)
+        )
+    db.commit()
+
+    flask.flash('Updated product!', 'success')
+    return flask.redirect(flask.url_for('product', product_id=product_id))
 
 @app.route("/products/<product_id>/", methods=["GET"])
 @util.templated("product.html")

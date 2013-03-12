@@ -48,3 +48,30 @@ def get_product_categories(cur=None):
         product_categories
     """)
     return cur.fetchall()
+
+def get_manufacturers(cur=None):
+    if not cur:
+        (_, cur) = get_dict_cursor()
+
+    cur.execute("""
+    SELECT
+        id,
+        name
+    FROM
+        manufacturers
+    """)
+    return cur.fetchall()
+
+# Note that `cur` can't be None when we're editing the database, because this
+# API would not provide the client any way to commit to the db after executing.
+def add_manufacturer(cur, mfg):
+    cur.execute("""
+    INSERT INTO
+        manufacturers
+    VALUES
+        (
+            NULL,
+            %s
+        )
+    """, (mfg,)
+    )

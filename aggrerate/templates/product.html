@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="product">
-    <h2>{{ product.manufacturer }} {{ product.name }}</h2>
+    <h2>{{ product.manufacturer }} {{ product.name }} <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-small"><i class="icon-edit"></i></a></h2>
 
     <div class="row">
         <div class="scraped_reviews span6">

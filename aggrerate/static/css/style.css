@@ -31,6 +31,9 @@ h4 {
 .product {
     margin-bottom: 0;
 }
+.product h2 a.btn {
+    margin: 0 0 5px 20px;
+}
 .product h3 a.product_name {
     color:#343434;
 }

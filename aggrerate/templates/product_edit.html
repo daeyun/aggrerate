@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="row">
+        <div class="span8">
+            <form name="f1" action="{{ url_for('edit_product', product_id=product.id) }}" method="post" class="form-horizontal">
+                <fieldset>
+                    <legend>Edit product</legend>
+
+                    <div class="control-group">
+                        <label for="product_name" class="control-label">Name</label>
+                        <div class="controls">
+                            <input type="text" name="product_name" value="{{ product.name }}">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="manufacturer_present" class="control-label">Manufacturer</label>
+                        <div class="controls">
+                            <select name="manufacturer_present" class="input-small">
+                                <option value="">&mdash;</option>
+                                {% for manufacturer in manufacturers %}
+                                <option value="{{ manufacturer.id }}"{% if manufacturer.id == product.manufacturer_id %} selected{% endif %}>{{ manufacturer.name }}</option>
+                                {% endfor %}
+                            </select>
+                            &nbsp;or&nbsp;
+                            <input type="text" name="manufacturer_not_present" class="input-medium">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="category" class="control-label">Category</label>
+                        <div class="controls">
+                            <select name="category_id" class="input-small">
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}"{% if category.id == product.category_id %} selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Create</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="span4">
+            <h3>Something else</h3>
+        </div>
+    </div>
+{% endblock %}
