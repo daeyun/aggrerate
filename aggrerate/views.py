@@ -405,6 +405,18 @@ def product(product_id=None):
     """, (product_id,))
     params['product'] = cur.fetchone()
 
+    cur.execute("""
+    SELECT
+        name,
+        value
+    FROM
+        specifications
+    WHERE
+        product_id = %s
+    """, (product_id,)
+    )
+    params['specs'] = cur.fetchall()
+
     # Find the product scraped reviews
     cur.execute("""
     SELECT

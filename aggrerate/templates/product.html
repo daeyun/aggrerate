@@ -48,6 +48,21 @@
                     <input type="hidden" name="product_id" value="{{ product.id }}">
                 </fieldset>
             </form>
+
+            {% if specs %}
+                <table class="table">
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                    {% for spec in specs %}
+                        <tr>
+                            <td>{{ spec.name }}</td>
+                            <td>{{ spec.value }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
         </div>
 
         <div class="span6">
