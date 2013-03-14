@@ -97,7 +97,6 @@ def user_profile(username):
     products = cur.fetchall()
 
     params['reviews'] = []
-    params['user_name'] = username
     for product in products:
         params['reviews'].append(product)
     params['dispUsername'] = username
