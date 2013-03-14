@@ -99,8 +99,7 @@ class PCMagScraper(ReviewScraper):
             self.score = \
                 float(self.soup.find(class_="rating").span['title'])*2
             self.blurb = \
-                self.soup.find(class_="pros-cons-bl").find_all('li')[2].p.text.strip()\
-                    .replace(';\'', '\'')
+                self.soup.find("meta", property="og:description")['content']
             self.body = \
                 '\n\n'.join(itertools.chain(
                     self.soup.find(class_="review-body").stripped_strings
