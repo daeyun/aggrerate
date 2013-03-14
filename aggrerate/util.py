@@ -75,3 +75,21 @@ def add_manufacturer(cur, mfg):
         )
     """, (mfg,)
     )
+
+# Get User details based on a username and password
+def get_userdata(username, cur=None):
+    if not cur:
+        (_, cur) = get_dict_cursor()
+    
+    cur.execute("""
+    SELECT
+        name as username,
+        full_name as fullname
+    FROM
+        users
+    WHERE
+        name = %s
+    """, (username,))
+
+    return cur.fetchall()
+
