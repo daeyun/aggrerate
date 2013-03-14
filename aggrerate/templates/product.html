@@ -9,6 +9,7 @@
             {% for review in scraped_reviews %}
                 <div class="review">
                     <h4>{{ review.source_name }} says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a></h4>
+                    {{ review.blurb | markdown }}
                 </div>
             {% endfor %}
         </div>

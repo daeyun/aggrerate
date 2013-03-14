@@ -1,3 +1,4 @@
+from bs4 import UnicodeDammit
 import itertools
 
 from aggrerate.scraper import ReviewScraper, register_scraper
@@ -19,6 +20,8 @@ class VergeScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="product-score-verge").strong.text)
+            self.blurb = \
+                self.soup.find(class_="conclusion").find(class_="big").text.strip()
             self.body = \
                 '\n\n'.join(itertools.chain(
                     self.soup.find(class_="conclusion").stripped_strings
@@ -42,6 +45,8 @@ class CNETScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="rateBarStyle").strong.text)
+            self.blurb = \
+                self.soup.find(class_="theBottomLine").span.text.strip()
             self.body = \
                 '\n\n'.join(itertools.chain(
                     self.soup.find(id="reviewSummary").stripped_strings,
@@ -66,6 +71,9 @@ class GdgtScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="new-gdgt-score").text) / 10
+            self.blurb = \
+                ' '.join(itertools.chain(
+                    self.soup.find(class_="gdgt-says").h2.stripped_strings))
             self.body = \
                 '\n\n'.join(itertools.chain(
                     self.soup.find(class_="gdgt-says").stripped_strings
@@ -90,13 +98,16 @@ class PCMagScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="rating").span['title'])*2
-
-            # This can be improved massively. It's pretty ugly now.
+            self.blurb = \
+                self.soup.find(class_="pros-cons-bl").find_all('li')[2].p.text.strip()\
+                    .replace(';\'', '\'')
             self.body = \
                 '\n\n'.join(itertools.chain(
                     self.soup.find(class_="review-body").stripped_strings
                 ))
         except:
+            import sys
+            print sys.exc_info()[0]
             print "Unable to find score on given page"
 
 @register_scraper
@@ -115,7 +126,7 @@ class WiredScraper(ReviewScraper):
         try:
             self.score = float(self.soup.find("span", class_="rating").text. \
                 split(' ')[1].split('/')[0])
-            self.tag = self.soup.find(class_="explanation").text
+            self.blurb = self.soup.find(class_="explanation").text
             self.body = '\n\n'.join(itertools.chain(
                 self.soup.find(class_="entry").stripped_strings
             ))
