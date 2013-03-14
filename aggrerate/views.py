@@ -37,6 +37,7 @@ def main():
     ON
         (user_reviews.user_id = users.id)
     AND (user_reviews.review_id = reviews.id)
+    AND (reviews.product_id = products.id)
     AND (products.manufacturer_id = manufacturers.id)
     ORDER BY
         reviews.date DESC,
