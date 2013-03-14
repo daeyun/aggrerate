@@ -25,6 +25,5 @@ class SpecificationScraper(object):
             for tr in self.specs_soup.find_all('tr'):
                 ths = tr.find_all('th')
                 self.specs[ths[0].text] = ths[1].text
-            print self.specs
         except:
             print "Unable to parse specs"

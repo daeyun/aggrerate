@@ -4,6 +4,7 @@ import flask, time
 from aggrerate import app, util
 from aggrerate.web_scripts import loginCode
 from aggrerate.scraper import ReviewScraper
+from aggrerate.scraper.specifications import SpecificationScraper
 
 def cookie_params(request):
     params = {"username": request.cookies.get('username')}
@@ -204,6 +205,7 @@ def add_product():
     # Prepare form values
     product_name = request.form['product_name']
     category_id  = request.form['category_id']
+    specs_url    = request.form['specs_url']
 
     mfg_in_db     = request.form['manufacturer_present']
     mfg_not_in_db = request.form['manufacturer_not_present']
@@ -218,6 +220,13 @@ def add_product():
         invalid = True
 
     if invalid:
+        return redir
+
+    # Scrape specifications
+    specs_scraper = SpecificationScraper(specs_url)
+    specs_scraper.parse_page()
+    if not specs_scraper.specs:
+        flask.flash('Unable to scrape specs', 'error')
         return redir
 
     # Insert into database
@@ -249,6 +258,22 @@ def add_product():
             )
         """, (product_name, category_id)
         )
+
+    product_id = cur.lastrowid
+
+    cur.executemany("""
+    INSERT INTO
+        specifications
+    VALUES
+        (
+            NULL,
+            %s,
+            %s,
+            %s
+        )
+    """, [(product_id, k, v) for k, v in specs_scraper.specs.iteritems()]
+    )
+
     db.commit()
 
     flask.flash('Added new product!', 'success')
