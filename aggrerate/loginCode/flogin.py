@@ -5,7 +5,10 @@ class User(login.UserMixin):
     @classmethod
     def get(cls, userid):
         data = util.get_userdata(username = userid)
-        
+        if data:
+            data = data[0]
+        else:
+            return None        
 
         return User(data, userid=="matt")
 
