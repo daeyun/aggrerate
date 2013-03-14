@@ -387,7 +387,7 @@ def product(product_id=None):
         scraped_reviews.url AS url,
         date,
         score,
-        body_text,
+        blurb,
         review_sources.name AS source_name
     FROM
         reviews
@@ -499,9 +499,10 @@ def scrape():
                 WHERE
                     review_sources.name = %s
             ),
+            %s,
             %s
         )
-    """, (scraper.__class__.pretty_site_name, request.form['url'])
+    """, (scraper.__class__.pretty_site_name, request.form['url'], scraper.blurb)
     )
     db.commit()
 

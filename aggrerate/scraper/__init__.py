@@ -11,6 +11,7 @@ class ReviewScraper(object):
         self.url   = url
         self.soup  = None
         self.score = None
+        self.blurb = None
         self.body  = None
 
     @classmethod
