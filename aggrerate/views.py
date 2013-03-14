@@ -19,6 +19,32 @@ def cookie_params(request):
 def main():
     params = cookie_params(request)
     # params = {'username': request.cookies.get['username']}
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        users.name AS user_name,
+        reviews.date AS review_date,
+        reviews.score AS review_score,
+        reviews.body_text AS text,
+        products.name AS product_name,
+        manufacturers.name AS manufacturer_name
+    FROM
+        reviews
+    INNER JOIN users
+    INNER JOIN user_reviews
+    INNER JOIN products
+    INNER JOIN manufacturers
+    ON
+        (user_reviews.user_id = users.id)
+    AND (user_reviews.review_id = reviews.id)
+    AND (products.manufacturer_id = manufacturers.id)
+    ORDER BY
+        reviews.date DESC,
+        products.name ASC
+    LIMIT 5
+    """)
+    params['reviews'] = cur.fetchall()
+
     return params
 
 @app.route("/about/")
