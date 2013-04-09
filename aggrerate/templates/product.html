@@ -58,7 +58,7 @@
                     {% for spec in specs %}
                         <tr>
                             <td>{{ spec.name }}</td>
-                            <td>{{ spec.value }}</td>
+                            <td title="{{ spec.value_decimal }}">{{ spec.value }}</td>
                         </tr>
                     {% endfor %}
                 </table>
