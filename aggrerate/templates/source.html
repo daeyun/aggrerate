@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Reviews by {{ dispUsername }} </h2>
+
+
+{% for review in reviews %}
+
+
+{# Need +0000 in date for it to recognize the timezone as GMT #}
+<h3><a href="{{ url_for('product', product_id=review.product_id) }}" title="Product details">{{ review.manufacturer }} {{ review.product_name }}</a>: 
+	{{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
+	{% if username == dispUsername %}
+	<a class="close" href="{{ url_for('delete_review', review_id=review.id, username=username) }}">&times;</a>
+	{% endif %}
+</h3>
+{{ review.body_text | markdown }}
+
+{% endfor %}
+
+
+<form>
+	<label class="radio">
+		<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+		I have no preference.
+	</label>
+	<label class="radio">
+		<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+		Yes! I like this source.
+	</label>
+	<label class="radio">
+		<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+		Eww! No more of this source.
+	</label>
+
+	<input type="submit" value="Submit">
+</form>
+
+
+
+{% endblock %}
