@@ -308,7 +308,7 @@ def edit_product(product_id):
 
     # Otherwise we're a POST. Did they click cancel?
     if request.form.has_key('cancel'):
-        flask.flash('Chankes canceled', 'info')
+        flask.flash('Changes canceled', 'info')
         return flask.redirect(flask.url_for('product', product_id=product_id))
 
     # Prepare form values
