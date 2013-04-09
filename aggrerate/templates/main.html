@@ -1,4 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
-<p>Main page</p>
+<div id="recent-reviews">
+    <h3>Recent Reviews</h3>
+    {% for r in reviews %}
+    <div class="review well">
+        <h4 class="product_name">{{ r.manufacturer_name }} {{ r.product_name }}</h4>
+        <span class="stars">{{ r.review_score }}</span>
+        <span class="review_date pretty-date">Date: {{ r.review_date }} </span>
+        <div><a href="{{ url_for('user_profile', username=r.user_name) }}">{{ r.user_name }} </a> wrote: </div>
+        <p>{{ r.text }} </p>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

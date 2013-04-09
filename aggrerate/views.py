@@ -2,12 +2,16 @@ from flask import render_template, request
 import flask, time
 
 from aggrerate import app, util
-from aggrerate.web_scripts import loginCode
+from aggrerate.loginCode import loginCode, flogin
 from aggrerate.scraper import ReviewScraper
 from aggrerate.scraper.specifications import SpecificationScraper
-
+from flask.ext import login
 def cookie_params(request):
-    params = {"username": request.cookies.get('username')}
+    params = {}
+    if login.current_user.is_authenticated():
+        params["username"] = login.current_user.data["username"]
+    else:
+        params["username"] = "anonymous"
     return params
 
 @app.route('/')
@@ -15,6 +19,33 @@ def cookie_params(request):
 def main():
     params = cookie_params(request)
     # params = {'username': request.cookies.get['username']}
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        users.name AS user_name,
+        reviews.date AS review_date,
+        reviews.score AS review_score,
+        reviews.body_text AS text,
+        products.name AS product_name,
+        manufacturers.name AS manufacturer_name
+    FROM
+        reviews
+    INNER JOIN users
+    INNER JOIN user_reviews
+    INNER JOIN products
+    INNER JOIN manufacturers
+    ON
+        (user_reviews.user_id = users.id)
+    AND (user_reviews.review_id = reviews.id)
+    AND (reviews.product_id = products.id)
+    AND (products.manufacturer_id = manufacturers.id)
+    ORDER BY
+        reviews.date DESC,
+        products.name ASC
+    LIMIT 5
+    """)
+    params['reviews'] = cur.fetchall()
+
     return params
 
 @app.route("/about/")
@@ -106,9 +137,9 @@ def delete_review(review_id):
     else:
         flask.abort(404)
 
-@app.route("/login/")
+@app.route("/loginPage/")
 @util.templated("login.html")
-def login():
+def loginPage():
     params = cookie_params(request)
     return params
 
@@ -117,16 +148,18 @@ def attemptLogin():
     params = cookie_params(request)
     if 'username' in flask.request.args.keys() and 'password' in request.args.keys():
         if loginCode.validateUser(request.args['username'], request.args['password']):
-            resp = flask.make_response(render_template('main.html', username=flask.request.args['username']))
-            resp.set_cookie('username', flask.request.args['username'])
-            return resp
-    return flask.redirect(flask.url_for('login'))
+            if login.login_user(flogin.User.get(request.args['username']), remember=True):
+		flask.flash("You logged in!", "info")
+            	return flask.redirect(flask.url_for('main'))
+    return flask.redirect(flask.url_for('loginPage'))
 
 @app.route("/logout/")
 def logout():
     resp = flask.make_response(render_template('main.html'))
     resp.set_cookie('username', '', expires=0)
-    return resp
+    login.logout_user()
+    flask.flash("You logged out", "info")
+    return flask.redirect(flask.url_for('main'))
 
 @app.route("/signup/")
 @util.templated("signup.html")
@@ -139,7 +172,7 @@ def attemptSignup():
         return flask.redirect(flask.url_for('signup', retry=True))
     # It's time to add the user's new username and password to the table
     if loginCode.addUser(request.form['username'], request.form['password']):
-        return flask.redirect(flask.url_for('login'))
+        return flask.redirect(flask.url_for('loginPage'))
     else:
         return flask.redirect(flask.url_for('signup', retry=True))
 

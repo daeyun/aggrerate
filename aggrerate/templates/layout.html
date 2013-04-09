@@ -13,10 +13,10 @@
                 <h1>Aggrerate</h1>
                 <em>Aggregated Tech Reviews</em>
                 <div class="user_info">
-                {% if username %}
-                    <p>Hello, {{ username }} <a class="btn btn-mini" href="{{ url_for('logout') }}">Log out</a></p>
+                {% if current_user() %}
+                <p>Hello, <a href="{{ url_for('user_profile', username=current_user().data["fullname"]) }}">{{ current_user().data["fullname"] }}</a> <a class="btn btn-mini" href="{{ url_for('logout') }}">Log out</a></p>
                 {% else %}
-                    <p><a class="btn btn-mini" href="{{ url_for('login') }}">Log in</a>  <a class="btn btn-mini btn-primary" href="{{ url_for('signup') }}">Sign up</a></p>
+                    <p><a class="btn btn-mini" href="{{ url_for('loginPage') }}">Log in</a>  <a class="btn btn-mini btn-primary" href="{{ url_for('signup') }}">Sign up</a></p>
                 {% endif %}
                 </div>
             </div>
@@ -33,7 +33,7 @@
             </div>
             {% with messages = get_flashed_messages(with_categories=True) %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div id="message" class="alert alert-{{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endwith %}
             <div id="content">

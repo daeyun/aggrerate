@@ -41,4 +41,3 @@ def addUser(username, password):
         """, (None, username, password))
         db.commit()
         return True
-

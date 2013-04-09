@@ -47,3 +47,37 @@ h4 {
 .row {
     margin-bottom: 20px;
 }
+#message {
+}
+
+span.stars, span.stars span {
+    display: block;
+    background: url(../img/stars.png) 0 -16px repeat-x;
+    width: 80px;
+    height: 16px;
+}
+span.stars span {
+    background-position: 0 0;
+}
+
+#recent-reviews .product_name {
+    display:inline;
+    margin-right:10px;
+}
+#recent-reviews span {
+    display:inline-block;
+}
+#recent-reviews span.review_date {
+    display:inline-block;
+    font-size:80%;
+    color:#999;
+    padding:5px;
+    position:relative;
+    top:-2px;
+}
+#recent-reviews p {
+    margin:0;
+}
+#recent-reviews .review {
+    width:460px;
+}
