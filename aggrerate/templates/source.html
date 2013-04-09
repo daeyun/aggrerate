@@ -18,7 +18,8 @@
 {% endfor %}
 
 
-<form>
+
+<form> {# class="form-horizontal" action="{{ url_for('attemptSource') }}" method="POST"> #}
 	<label class="radio">
 		<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
 		I have no preference.
