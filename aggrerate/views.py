@@ -7,6 +7,59 @@ from aggrerate.scraper import ReviewScraper
 from aggrerate.scraper.specifications import SpecificationScraper
 from flask.ext import login
 
+@app.route("/products/")
+@util.templated("products_list.html")
+def products_list():
+	params = cookie_params(request)
+
+	(db, cur) = util.get_dict_cursor()
+	cur.execute("""
+	SELECT
+		products.id AS id,
+		products.name AS name,
+		manufacturers.name AS manufacturer,
+		product_categories.id AS category_id,
+		product_categories.name AS category,
+		COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
+		CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
+		COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
+		CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
+	FROM
+		products
+	INNER JOIN product_categories
+		ON (products.category_id = product_categories.id)
+	INNER JOIN manufacturers
+		ON (products.manufacturer_id = manufacturers.id)
+	LEFT JOIN (reviews, scraped_reviews)
+		ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+	LEFT JOIN (reviews AS reviews_u, user_reviews)
+		ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+	GROUP BY
+		products.id
+	ORDER BY
+		avg_score DESC,
+		products.name ASC
+	""")
+	params['products'] = cur.fetchall()
+	params['categories'] = util.get_product_categories()
+
+	cur.execute("""
+	SELECT
+		id,
+		name
+	FROM
+		manufacturers
+	""")
+	params['manufacturers'] = cur.fetchall()
+
+	params['has_categories'] = True
+	params['has_avg_scores'] = True
+
+	# Uncomment this to include average user scores in the products table
+	# params['has_avg_user_scores'] = True
+
+	return params
+
 def cookie_params(request):
 	params = {}
 	if login.current_user.is_authenticated():
@@ -176,59 +229,6 @@ def attemptSignup():
 		return flask.redirect(flask.url_for('loginPage'))
 	else:
 		return flask.redirect(flask.url_for('signup', retry=True))
-
-@app.route("/products/")
-@util.templated("products_list.html")
-def products_list():
-	params = cookie_params(request)
-
-	(db, cur) = util.get_dict_cursor()
-	cur.execute("""
-	SELECT
-		products.id AS id,
-		products.name AS name,
-		manufacturers.name AS manufacturer,
-		product_categories.id AS category_id,
-		product_categories.name AS category,
-		COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-		CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
-		COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
-		CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
-	FROM
-		products
-	INNER JOIN product_categories
-		ON (products.category_id = product_categories.id)
-	INNER JOIN manufacturers
-		ON (products.manufacturer_id = manufacturers.id)
-	LEFT JOIN (reviews, scraped_reviews)
-		ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
-	LEFT JOIN (reviews AS reviews_u, user_reviews)
-		ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
-	GROUP BY
-		products.id
-	ORDER BY
-		avg_score DESC,
-		products.name ASC
-	""")
-	params['products'] = cur.fetchall()
-	params['categories'] = util.get_product_categories()
-
-	cur.execute("""
-	SELECT
-		id,
-		name
-	FROM
-		manufacturers
-	""")
-	params['manufacturers'] = cur.fetchall()
-
-	params['has_categories'] = True
-	params['has_avg_scores'] = True
-
-	# Uncomment this to include average user scores in the products table
-	# params['has_avg_user_scores'] = True
-
-	return params
 
 @app.route('/products/add_product/', methods=['POST'])
 def add_product():

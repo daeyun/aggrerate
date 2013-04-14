@@ -1,51 +1,66 @@
 <!DOCTYPE html> 
 <html lang="en-US"> 
-    <head> 
-        <meta charset="UTF-8" /> 
-        <title>Aggrerate</title>
-        <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> 
-        <link href="/static/css/style.css" rel="stylesheet" type="text/css" /> 
-        <link rel="shortcut icon" href="/favicon.ico" /> 
-    </head> 
-    <body> 
-        <div class="container">
-            <div id="heading">
-                <h1>Aggrerate</h1>
-                <em>Aggregated Tech Reviews</em>
-                <div class="user_info">
-                {% if current_user() %}
-                <p>Hello, <a href="{{ url_for('user_profile', username=current_user().data["fullname"]) }}">{{ current_user().data["fullname"] }}</a> <a class="btn btn-mini" href="{{ url_for('logout') }}">Log out</a></p>
-                {% else %}
-                    <p><a class="btn btn-mini" href="{{ url_for('loginPage') }}">Log in</a>  <a class="btn btn-mini btn-primary" href="{{ url_for('signup') }}">Sign up</a></p>
-                {% endif %}
-                </div>
-            </div>
-            <div id="menu">
-                <div class="navbar navbar-inverse">
-                <div class="navbar-inner">
-                <ul class="nav">
-                    <li {% if request.path=="/" %}class="active"{% endif %}><a href="/">Home</a></li>
-                    <li {% if request.path=="/products" %}class="active"{% endif %}><a href="{{ url_for('products_list') }}">Products</a></li>
-                    <li {% if request.path=="/about" %}class="active"{% endif %}><a href="{{ url_for('about') }}">About</a></li>
-                </ul>
-                </div>
-                </div>
-            </div>
-            {% with messages = get_flashed_messages(with_categories=True) %}
-                {% for category, message in messages %}
-                    <div id="message" class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endwith %}
-            <div id="content">
-                {% block body %}{% endblock %}
-            </div>
-            <div id="footer">
-            </div>
-        </div><!-- end of container -->
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script type="text/javascript" src="/static/vendor/bootstrap/js/bootstrap.min.js"></script> 
-        <script type="text/javascript" src="/static/vendor/moment/js/moment.min.js"></script> 
-        <script type="text/javascript" src="/static/js/script.js"></script> 
-    </body>
+	<!-- imported packages -->
+	<head> 
+		<meta charset="UTF-8" /> 
+		<title>Aggrerate</title>
+		<link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> 
+		<link href="/static/css/style.css" rel="stylesheet" type="text/css" /> 
+		<link rel="shortcut icon" href="/favicon.ico" /> 
+	</head> 
+	<body> 
+		<div class="container">
+
+			<!-- header for the page -->
+			<div id="heading">
+				<h1>Aggrerate</h1>					               
+				<em>Aggregated Tech Reviews</em>
+
+
+				<!-- contains different output depending on whether there's a user or not -->
+				<div class="user_info">
+					{% if current_user() %}
+						<p>Hello, <a href="{{ url_for('user_profile', username=current_user().data["fullname"]) }}">{{ current_user().data["fullname"] }}</a> 
+						<a class="btn btn-mini" href="{{ url_for('logout') }}">Log out</a></p>
+					
+					{% else %}
+						<p><a class="btn btn-mini" href="{{ url_for('loginPage') }}">Log in</a>  
+						<a class="btn btn-mini btn-primary" href="{{ url_for('signup') }}">Sign up</a></p>
+
+					{% endif %}
+				</div>
+			</div>
+
+			<!-- Black bar at the top of the page -->
+			<div id="menu">
+				<div class="navbar navbar-inverse">
+					<div class="navbar-inner">
+						<ul class="nav">
+							<li {% if request.path=="/" %}class="active"{% endif %}><a href="/">Home</a></li>
+							<li {% if request.path=="/products" %}class="active"{% endif %}><a href="{{ url_for('products_list') }}">Products</a></li>
+							<li {% if request.path=="/about" %}class="active"{% endif %}><a href="{{ url_for('about') }}">About</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+
+			{% with messages = get_flashed_messages(with_categories=True) %}
+			{% for category, message in messages %}
+			<div id="message" class="alert alert-{{ category }}">{{ message }}</div>
+			{% endfor %}
+			{% endwith %}
+			<div id="content">
+				{% block body %}{% endblock %}
+			</div>
+			<div id="footer">
+			</div>
+		</div><!-- end of container -->
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="/static/vendor/bootstrap/js/bootstrap.min.js"></script> 
+		<script type="text/javascript" src="/static/vendor/moment/js/moment.min.js"></script> 
+		<script type="text/javascript" src="/static/js/script.js"></script> 
+	</body>
 </html>
