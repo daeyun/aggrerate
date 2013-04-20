@@ -677,6 +677,11 @@ def product_category(category_id):
 
     return params
 
+@app.route('/search/')
+@util.templated('query.html')
+def search():
+    return
+
 @app.route('/source/id/')
 @util.templated('source.html')
 def source():

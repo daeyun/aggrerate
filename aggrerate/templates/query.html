@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="row">
+        <div class="span7">
+            <h3>Search results</h3>
+        </div>
+        <div class="span5">
+            <h3>Search Parameters</h3>
+            <form class="form-horizontal query-builder" action="#" method="GET">
+                <div class="query-build-wrap">
+                    <input type="text" autocomplete="false">
+                </div>
+                <div class="query-build-wrap">
+                    <input type="text" autocomplete="false">
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" src="/static/js/query_form.js"></script>
+{% endblock %}
