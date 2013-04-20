@@ -81,7 +81,7 @@ span.stars span {
 #recent-reviews .review {
     width:460px;
 }
-form.query-builder div.query-build-wrap {
+form.query-builder div {
     background: #ffd;
     margin-bottom: 10px;
 }
