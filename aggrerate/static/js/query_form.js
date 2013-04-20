@@ -5,7 +5,7 @@ $(function() {
             if (spec_names.length > 0) {
                 process(spec_names);
             } else {
-                $.getJSON('/search/get_specification_names/', function(data) {
+                $.getJSON('/recommendations/get_specification_names/', function(data) {
                     spec_names = data['spec_names'];
                     process(spec_names);
                 });

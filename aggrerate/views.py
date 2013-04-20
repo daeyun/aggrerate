@@ -678,12 +678,12 @@ def product_category(category_id):
 
     return params
 
-@app.route('/search/')
-@util.templated('query.html')
-def search():
+@app.route('/recommendations/')
+@util.templated('recommendations.html')
+def recommendations():
     return
 
-@app.route('/search/get_specification_names/')
+@app.route('/recommendations/get_specification_names/')
 def get_specification_names():
     params = cookie_params(request)
 
@@ -705,4 +705,9 @@ def source():
 @app.route('/attemptSource', methods=["POST"])
 def attemptSource():
     # Put more lines of code down here
+    return
+
+@app.route('/history/')
+@util.templated('history.html')
+def history():
     return

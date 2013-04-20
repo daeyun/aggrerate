@@ -81,9 +81,11 @@ span.stars span {
 #recent-reviews .review {
     width:460px;
 }
-form.query-builder div {
-    background: #ffd;
-    margin-bottom: 10px;
+form.query-builder div.query-build-wrap {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px;
+    margin-top: 10px;
 }
 form.query-builder div.query-build-wrap span.grammar-container {
     display: block;
@@ -92,7 +94,7 @@ form.query-builder div.query-build-wrap span.grammar-container {
 }
 form.query-builder div.query-build-wrap span.grammar-container span.grammar {
     font-weight: bold;
-    margin: 0 5px;
+    margin: 0 3px;
 }
 form.query-builder div.query-build-wrap div.query-input-parent {
     margin: 0!important;
@@ -105,7 +107,7 @@ form.query-builder div.query-build-wrap div.query-input-parent input {
     border-radius: 0;
     display: inline-block;
     margin: 0!important;
-    padding: 0 5px!important;
+    padding: 0 3px!important;
     width: 100%;
     box-sizing: border-box;
     -webkit-box-shadow: none!important;
