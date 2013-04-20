@@ -84,17 +84,19 @@ span.stars span {
 form.query-builder div.query-build-wrap {
     background: #ffd;
     margin-bottom: 10px;
-    padding: 5px;
 }
 form.query-builder div.query-build-wrap span.grammar-container {
     display: block;
     float: left;
+    padding: 1px;
 }
 form.query-builder div.query-build-wrap span.grammar-container span.grammar {
-    background-color: #eee;
-    margin-right: 5px;
+    font-weight: bold;
+    margin: 0 5px;
 }
 form.query-builder div.query-build-wrap div.query-input-parent {
+    margin: 0!important;
+    padding: 0!important;
     overflow: hidden;
 }
 form.query-builder div.query-build-wrap div.query-input-parent input {
@@ -102,6 +104,8 @@ form.query-builder div.query-build-wrap div.query-input-parent input {
     border: none!important;
     border-radius: 0;
     display: inline-block;
+    margin: 0!important;
+    padding: 0 5px!important;
     width: 100%;
     box-sizing: border-box;
     -webkit-box-shadow: none!important;

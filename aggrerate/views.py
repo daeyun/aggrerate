@@ -683,6 +683,20 @@ def product_category(category_id):
 def search():
     return
 
+@app.route('/search/get_specification_names/')
+def update_user_preference():
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute("""
+    SELECT DISTINCT
+        name
+    FROM
+        specifications
+    """)
+    spec_names = map(lambda d: d['name'], cur.fetchall())
+    return flask.jsonify({'spec_names': spec_names})
+
 @app.route('/source/id/')
 @util.templated('source.html')
 def source():
