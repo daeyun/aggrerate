@@ -125,9 +125,23 @@ def user_profile(username):
 
     return params
 
-@app.route('/user/<username>/set_preferences/', methods=['POST'])
-def update_user_preference(username):
-    print 'storing preferences'
+@app.route('/user/set_preferences/', methods=['POST'])
+def update_user_preference():
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    deleted = cur.execute("""
+    REPLACE INTO
+        user_preferences (user_id, review_sources_id, priority)
+    VALUES
+        (
+            %s,
+            %s,
+            %s
+        )
+    """, (login.current_user.data['user_id'], request.form['source_id'], request.form['priority']))
+    db.commit()
+
     return flask.jsonify({'resp': True})
 
 @app.route('/delete_review/<review_id>/')

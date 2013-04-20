@@ -14,4 +14,11 @@ $(function() {
         $(this).html($span);
     });
 
+    // Auto-submit user preferences
+    $('form.source-preferences-form').each(function() {
+        var $form = $(this);
+        $('input[name=priority]', this).change(function() {
+            $.post($form.attr('action'), $form.serialize());
+        });
+    });
 });

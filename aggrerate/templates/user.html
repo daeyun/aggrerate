@@ -1,13 +1,32 @@
 {% extends "layout.html" %}
 {% block body %}
-<h2>Reviews by {{ dispUsername }} </h2>
-    {% for review in reviews %}
-        {# Need +0000 in date for it to recognize the timezone as GMT #}
-        <h3><a href="{{ url_for('product', product_id=review.product_id) }}" title="Product details">{{ review.manufacturer }} {{ review.product_name }}</a>: {{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
-            {% if username == dispUsername %}
-                <a class="close" href="{{ url_for('delete_review', review_id=review.id, username=username) }}">&times;</a>
-            {% endif %}
-        </h3>
-        {{ review.body_text | markdown }}
-    {% endfor %}
+    <div class="row">
+        <div class="span6">
+            <h2>Reviews by {{ dispUsername }} </h2>
+            {% for review in reviews %}
+                {# Need +0000 in date for it to recognize the timezone as GMT #}
+                <h3><a href="{{ url_for('product', product_id=review.product_id) }}" title="Product details">{{ review.manufacturer }} {{ review.product_name }}</a>: {{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
+                    {% if username == dispUsername %}
+                        <a class="close" href="{{ url_for('delete_review', review_id=review.id, username=username) }}">&times;</a>
+                    {% endif %}
+                </h3>
+                {{ review.body_text | markdown }}
+            {% endfor %}
+        </div>
+        <div class="span6">
+            <h2>Review Source Preferences</h2>
+            <ul>
+                {% for preference in preferences %}
+                    <li>
+                    <form class="form-inline source-preferences-form" action="/user/set_preferences/">
+                            {{ preference.source_name }}:
+                            <input type="hidden" name="user_preference_id" value="{{ preference.user_preference_id }}">
+                            <input type="hidden" name="source_id" value="{{ preference.source_id }}">
+                            <input type="range" min="0" max="1" step="0.1" name="priority" value="{{ preference.priority }}">
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}
