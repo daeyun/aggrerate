@@ -684,7 +684,7 @@ def search():
     return
 
 @app.route('/search/get_specification_names/')
-def update_user_preference():
+def get_specification_names():
     params = cookie_params(request)
 
     (db, cur) = util.get_dict_cursor(None)
