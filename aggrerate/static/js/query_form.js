@@ -35,4 +35,15 @@ $(function() {
             });
         });
     });
+
+    // Redefine query dumb search
+    $('form.redefine-search').each(function() {
+        var $form = $(this);
+        $('input', this).change(function() {
+            $.get($form.attr('action'), $form.serialize(), function(data) {
+                console.log(data);
+                $('.results').html(data);
+            });
+        });
+    });
 });
