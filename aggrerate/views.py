@@ -7,59 +7,6 @@ from aggrerate.scraper import ReviewScraper
 from aggrerate.scraper.specifications import SpecificationScraper
 from flask.ext import login
 
-@app.route("/products/")
-@util.templated("products_list.html")
-def products_list():
-    params = cookie_params(request)
-
-    (db, cur) = util.get_dict_cursor()
-    cur.execute("""
-    SELECT
-        products.id AS id,
-        products.name AS name,
-        manufacturers.name AS manufacturer,
-        product_categories.id AS category_id,
-        product_categories.name AS category,
-        COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
-        COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
-        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
-    FROM
-        products
-    INNER JOIN product_categories
-        ON (products.category_id = product_categories.id)
-    INNER JOIN manufacturers
-        ON (products.manufacturer_id = manufacturers.id)
-    LEFT JOIN (reviews, scraped_reviews)
-        ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
-    LEFT JOIN (reviews AS reviews_u, user_reviews)
-        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
-    GROUP BY
-        products.id
-    ORDER BY
-        avg_score DESC,
-        products.name ASC
-    """)
-    params['products'] = cur.fetchall()
-    params['categories'] = util.get_product_categories()
-
-    cur.execute("""
-    SELECT
-        id,
-        name
-    FROM
-        manufacturers
-    """)
-    params['manufacturers'] = cur.fetchall()
-
-    params['has_categories'] = True
-    params['has_avg_scores'] = True
-
-    # Uncomment this to include average user scores in the products table
-    # params['has_avg_user_scores'] = True
-
-    return params
-
 def cookie_params(request):
     params = {}
     if login.current_user.is_authenticated():
@@ -150,12 +97,38 @@ def user_profile(username):
     """, username)
     products = cur.fetchall()
 
+    cur.execute("""
+    SELECT
+        user_preferences.id AS user_preference_id,
+        review_sources_id AS source_id,
+        review_sources.name AS source_name,
+        priority
+    FROM
+        user_preferences
+    INNER JOIN users
+        ON users.id = user_preferences.user_id
+    INNER JOIN review_sources
+        ON review_sources_id = review_sources.id
+    WHERE
+        users.name = %s
+    ORDER BY
+        review_sources.name ASC
+    """, username)
+    preferences = cur.fetchall()
+
     params['reviews'] = []
     for product in products:
         params['reviews'].append(product)
     params['dispUsername'] = username
 
+    params['preferences'] = preferences
+
     return params
+
+@app.route('/user/<username>/set_preferences/', methods=['POST'])
+def update_user_preference(username):
+    print 'storing preferences'
+    return flask.jsonify({'resp': True})
 
 @app.route('/delete_review/<review_id>/')
 def delete_review(review_id):
@@ -230,6 +203,59 @@ def attemptSignup():
     else:
         return flask.redirect(flask.url_for('signup', retry=True))
 
+@app.route("/products/")
+@util.templated("products_list.html")
+def products_list():
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        products.id AS id,
+        products.name AS name,
+        manufacturers.name AS manufacturer,
+        product_categories.id AS category_id,
+        product_categories.name AS category,
+        COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
+        CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
+        COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
+        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
+    FROM
+        products
+    INNER JOIN product_categories
+        ON (products.category_id = product_categories.id)
+    INNER JOIN manufacturers
+        ON (products.manufacturer_id = manufacturers.id)
+    LEFT JOIN (reviews, scraped_reviews)
+        ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+    LEFT JOIN (reviews AS reviews_u, user_reviews)
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+    GROUP BY
+        products.id
+    ORDER BY
+        avg_score DESC,
+        products.name ASC
+    """)
+    params['products'] = cur.fetchall()
+    params['categories'] = util.get_product_categories()
+
+    cur.execute("""
+    SELECT
+        id,
+        name
+    FROM
+        manufacturers
+    """)
+    params['manufacturers'] = cur.fetchall()
+
+    params['has_categories'] = True
+    params['has_avg_scores'] = True
+
+    # Uncomment this to include average user scores in the products table
+    # params['has_avg_user_scores'] = True
+
+    return params
+
 @app.route('/products/add_product/', methods=['POST'])
 def add_product():
     params = cookie_params(request)
@@ -293,7 +319,7 @@ def add_product():
         """, (product_name, category_id)
         )
 
-        product_id = cur.lastrowid
+    product_id = cur.lastrowid
 
     def r(s):
         try:
@@ -376,11 +402,11 @@ def edit_product(product_id):
         # to have an invalid state when they selected nothing in both fields,
         # so I think we can just not give an ID here.
         params['product'] = {
-                'id': product_id,
-                'name': product_name,
-                'category_id': category_id,
-                'manufacturer_id': None
-                }
+            'id': product_id,
+            'name': product_name,
+            'category_id': category_id,
+            'manufacturer_id': None
+        }
         params['manufacturers'] = util.get_manufacturers(cur)
         params['categories'] = util.get_product_categories(cur)
         return render_template('product_edit.html', **params)
@@ -416,7 +442,7 @@ def edit_product(product_id):
             id = %s
         """, (product_name, category_id, product_id)
         )
-        db.commit()
+    db.commit()
 
     flask.flash('Updated product!', 'success')
     return flask.redirect(flask.url_for('product', product_id=product_id))
@@ -588,8 +614,6 @@ def scrape():
     flask.flash("Successfully scraped. They gave this product a %s." % scraper.score, "success")
     return redir
 
-
-
 @app.route('/products/categories/<category_id>/')
 @util.templated('category.html')
 def product_category(category_id):
@@ -603,7 +627,7 @@ def product_category(category_id):
     params['category'] = filter(
             lambda d: d['id'] == int(category_id),
             params['categories']
-            )[0]['name']
+        )[0]['name']
 
     cur.execute("""
     SELECT
@@ -639,15 +663,12 @@ def product_category(category_id):
 
     return params
 
-
 @app.route('/source/id/')
 @util.templated('source.html')
 def source():
-
     return
-
 
 @app.route('/attemptSource', methods=["POST"])
 def attemptSource():
-    # Put more lines of cde down here
+    # Put more lines of code down here
     return
