@@ -84,8 +84,12 @@ span.stars span {
 form.query-builder div.query-build-wrap {
     background: #fff;
     border: 1px solid #ccc;
+    margin-bottom: 10px;
     padding: 6px;
-    margin-top: 10px;
+}
+form.query-builder div.query-build-wrap.success {
+    border: 1px solid #468847;
+    color: #468847;
 }
 form.query-builder div.query-build-wrap span.grammar-container {
     display: block;

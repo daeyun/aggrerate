@@ -6,23 +6,17 @@
             <div class="results"></div>
         </div>
         <div class="span5">
-            <h3>Text Search</h3>
-            <form class="form-horizontal redefine-search" action="/execute_search/" method="GET">
-                <input type="text" name="query">
-            </form>
+            <form class="query-builder" action="/execute_search/" method="GET">
+                <fieldset>
+                    <legend>Search Parameters</legend>
+                    <div class="control-group">
+                        <label for="query">Text Search</label>
+                        <input type="text" name="query">
+                    </div>
 
-            <h3>Search Parameters</h3>
-            <form class="form-horizontal query-builder" action="/execute_search/" method="GET">
-                <div>
-                    <input type="text" name="query">
-                </div>
-
-                <div class="query-build-wrap">
-                    <div class="query-input-parent"><input type="text" autocomplete="false"></div>
-                </div>
-                <div class="query-build-wrap">
-                    <div class="query-input-parent"><input type="text" autocomplete="false"></div>
-                </div>
+                    <label>Requirements</label>
+                    <div class="query-build-container"></div>
+                </fieldset>
             </form>
         </div>
     </div>

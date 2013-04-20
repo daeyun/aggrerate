@@ -17,21 +17,18 @@ $(function() {
 
     $('form.query-builder').each(function() {
         var $form = $(this);
-        $('div.query-build-wrap', this).each(function() {
-            var $wrapper = $(this);
-
+        var init_query_wrap = (function($wrapper) {
             var $grammar_container = $('<span/>');
             $grammar_container.addClass('grammar-container');
 
             $wrapper.prepend($grammar_container);
             $wrapper.state = 0;
 
-            var $input = $('input', this);
+            var $input = $('input', $wrapper);
             $input.typeahead({
                 'source': sources[0],
                 'updater': function(item) {
                     $grammar_container.append('<span class="grammar">' + item + '</span>');
-
                     $wrapper.state++;
                     this.source = sources[$wrapper.state];
                 }
@@ -47,11 +44,22 @@ $(function() {
                     // last character of new_content)
                     return false;
                 }
+            }).keyup(function(e) {
+                if ($wrapper.state == 2 && $input.val().length > 0) {
+                    $wrapper.addClass('success');
+                } else {
+                    $wrapper.removeClass('success');
+                }
+
+                // Optionally add a new query-build field
+                if ($('div.query-build-wrap').length == $('div.query-build-wrap.success').length) {
+                    add_query_wrap();
+                }
             }).blur(function(e) {
                 if ($wrapper.state == 2) {
                     // Build up all the data from all the inputs in the form
                    var data = [];
-                    $('div.query-build-wrap', $form).each(function() {
+                    $('div.query-build-wrap.success', $form).each(function() {
                         var $wrap = $(this);
                         var $grammars = $('span.grammar', $wrap);
                         if ($grammars.length == 2) {
@@ -69,9 +77,22 @@ $(function() {
                             });
                         }
                     );
+                } else if ($wrapper.state == 0 && $input.val() == '' && !$wrapper.is(':last-child')) {
+                    $wrapper.remove();
                 }
             });
         });
+
+        var $query_build_container = $('div.query-build-container', this);
+        var add_query_wrap = function() {
+            $wrapper = $('<div class="query-build-wrap control-group"><div class="query-input-parent"><input type="text" autocomplete="false"></div></div>');
+            $query_build_container.append($wrapper);
+            init_query_wrap($wrapper);
+        };
+
+        // Add the first field
+        add_query_wrap();
+
     });
 
     // Redefine query dumb search
