@@ -1,5 +1,6 @@
 from flask import render_template, request
 import flask, time
+import json
 
 from aggrerate import app, util
 from aggrerate.loginCode import loginCode, flogin
@@ -696,6 +697,18 @@ def get_specification_names():
     """)
     spec_names = map(lambda d: d['name'], cur.fetchall())
     return flask.jsonify({'spec_names': spec_names})
+
+@app.route('/execute_search/')
+@util.templated('ajax/query_response.html')
+def execute_search():
+    query = request.args.get('query', '')
+
+    # Rebuild requirements list
+    requirements = []
+    for i in range(int(request.args.get('num_requirements'))):
+        requirements.append(request.args.getlist('requirements[%s][]' % i))
+
+    return {'body': json.dumps({'query': query, 'requirements': requirements})}
 
 @app.route('/source/id/')
 @util.templated('source.html')
