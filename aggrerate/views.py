@@ -231,7 +231,7 @@ def products_list():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
+        metascore(%s,products.id) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
@@ -249,7 +249,7 @@ def products_list():
     ORDER BY
         avg_score DESC,
         products.name ASC
-    """)
+    """, (login.current_user.data["user_id"],))
     params['products'] = cur.fetchall()
     params['categories'] = util.get_product_categories()
 
@@ -473,7 +473,8 @@ def product(product_id=None):
         manufacturers.name AS manufacturer,
         products.id AS id,
         products.name AS name,
-        product_categories.name AS category
+        product_categories.name AS category,
+        metascore(%s,products.id) as avg_score
     FROM
         products
     INNER JOIN product_categories
@@ -483,7 +484,7 @@ def product(product_id=None):
     AND products.manufacturer_id = manufacturers.id
     WHERE
         products.id = %s
-    """, (product_id,))
+    """, (login.current_user.data["user_id"], product_id,))
     params['product'] = cur.fetchone()
 
     cur.execute("""
@@ -649,7 +650,7 @@ def product_category(category_id):
         products.name AS name,
         manufacturers.name AS manufacturer,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        CAST(AVG(reviews.score) AS DECIMAL(3, 1)) AS avg_score,
+        metascore(%s,products.id) AS avg_score,
         CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
@@ -668,7 +669,7 @@ def product_category(category_id):
     ORDER BY
         avg_score DESC,
         products.name ASC
-    """, (category_id,))
+    """, (login.current_user.data["user_id"], category_id,))
     params['products'] = cur.fetchall()
 
     params['has_avg_scores']      = True

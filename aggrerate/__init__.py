@@ -11,6 +11,7 @@ app.secret_key = 'aggrerate_secret_key'
 Misaka(app, smartypants=True)
 
 login_manager = login.LoginManager()
+login_manager.anonymous_user = flogin.getAnonymousUser
 
 @login_manager.user_loader
 def load_user(userid):
