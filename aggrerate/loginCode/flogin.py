@@ -22,6 +22,14 @@ class User(login.UserMixin):
     def is_admin(self):
         return self.admin
 
+    def is_authenticated(self):
+        if self.data["username"] == "anonymous":
+            return False
+        return super(User, self).is_authenticated()
+
     def get_id(self):
         return self.data["username"]
+
+def getAnonymousUser():
+    return User({"username":"anonymous", "user_id":0}, False)
 
