@@ -34,7 +34,8 @@ def update_scraped_reviews():
         scrapedReviewId = result["sr.id"]
 
         print "Updating %s" % result
-        print "Score: %s" % scraper.score
+        print "Score: %s, Words in body text: %s" % \
+            (scraper.score, len(scraper.body.split()))
 
         cur.execute("""
         UPDATE

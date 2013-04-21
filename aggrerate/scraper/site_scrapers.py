@@ -2,6 +2,7 @@ from bs4 import UnicodeDammit
 import itertools
 
 from aggrerate.scraper import ReviewScraper, register_scraper
+from aggrerate import util
 
 @register_scraper
 class VergeScraper(ReviewScraper):
@@ -22,7 +23,8 @@ class VergeScraper(ReviewScraper):
                 float(self.soup.find(class_="product-score-verge").strong.text)
             self.blurb = \
                 self.soup.find(class_="conclusion").find(class_="big").text.strip()
-            self.body = str(self.soup.find(class_="entry-content"))
+            self.body = \
+                util.strip_tags(str(self.soup.find(class_="entry-content")))
         except:
             print "Unable to find score on given page"
 
@@ -45,7 +47,7 @@ class CNETScraper(ReviewScraper):
             self.blurb = \
                 self.soup.find(class_="theBottomLine").span.text.strip()
             self.body = \
-                    str(self.soup.find(id="contentBody"))
+                util.strip_tags(str(self.soup.find(id="contentBody")))
         except:
             print "Unable to find score on given page"
 
@@ -69,7 +71,7 @@ class GdgtScraper(ReviewScraper):
                 ' '.join(itertools.chain(
                     self.soup.find(class_="gdgt-says").h2.stripped_strings))
             self.body = \
-                    str(self.soup.find(class_="gdgt-says"))
+                util.strip_tags(str(self.soup.find(class_="gdgt-says")))
         except:
             print "Unable to find score on given page"
 
@@ -93,7 +95,8 @@ class PCMagScraper(ReviewScraper):
             self.blurb = \
                 self.soup.find("meta", property="og:description")['content']
             self.body = \
-                    str(self.soup.find(class_="review-body"))
+                util.strip_tags(str(self.soup.find(class_="pros-cons-bl")) +
+                                str(self.soup.find(class_="review-body")))
         except:
             import sys
             print sys.exc_info()[0]
@@ -117,6 +120,6 @@ class WiredScraper(ReviewScraper):
                 split(' ')[1].split('/')[0])
             self.blurb = self.soup.find(class_="explanation").text
             self.body = \
-                str(self.soup.find(class_="entry"))
+                util.strip_tags(str(self.soup.find(class_="entry")))
         except:
             print "Unable to find score on given page"

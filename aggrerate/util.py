@@ -1,3 +1,4 @@
+import re
 import MySQLdb as mdb
 
 from functools import wraps
@@ -23,9 +24,9 @@ def templated(template=None):
     return decorator
 
 def get_db():
-    return mdb.connect(host='localhost',
-        user='root',
-        passwd='sdsdd',
+    return mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+        user='jeff',
+        passwd='jeff',
         db='aggrerate',
         charset='utf8'
     )
@@ -94,3 +95,15 @@ def get_userdata(username, cur=None):
 
     return cur.fetchall()
 
+
+# This is not a very efficient way to strap tags, but it's easy and robust.
+def strip_tags(string):
+    string = re.sub(r'\{[\s\S]*?\}', r'', string)
+    string = re.sub(r'\<[\s\S]*?\>', r'', string)
+    string = re.sub(r'//[^ ]', r' ', string)
+    string = re.sub(r'[\(\)]', r'', string)
+    string = re.sub(r'[^ a-zA-Z0-9\.\-\_\/]', r' ', string)
+    string = string.lower()
+    string = re.sub(r'\.[ \n\t\r]', r' ', string)
+    string = re.sub(r'[\t\n ]+', r' ', string)
+    return string
