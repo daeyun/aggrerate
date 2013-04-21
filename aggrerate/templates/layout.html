@@ -18,7 +18,7 @@
                 <!-- contains different output depending on whether there's a user or not -->
                 <div class="user_info">
                     {% if current_user() %}
-                        <p>Hello, <a href="{{ url_for('user_profile', username=current_user().data["fullname"]) }}">{{ current_user().data["fullname"] }}</a> 
+                        <p>Hello, <a href="{{ url_for('user_profile', username=current_user().data["username"]) }}">{{ current_user().data["fullname"] }}</a> 
                         <a class="btn btn-mini" href="{{ url_for('logout') }}">Log out</a></p>
                     {% else %}
                         <p><a class="btn btn-mini" href="{{ url_for('loginPage') }}">Log in</a>
