@@ -3,7 +3,12 @@
     {% block body %}{% endblock %}
     <div class="review-interact">
         <div class="review-interact-info">
-            <span class="votes"></span> <a href="" class="upvote-link">Upvote</a><span class="separator">/</span><a href="" class="downvote-link">Downvote</a><span class="separator">/</span><a href="" class="novote-link">No vote</a> &middot; <a href="#" class="comment-link">Comment</a>
+            <span class="votes"></span>
+            {% if current_user() %}
+                <a href="" class="upvote-link">Upvote</a><span class="separator">/</span><a href="" class="downvote-link">Downvote</a><span class="separator">/</span><a href="" class="novote-link">No vote</a> &middot; <a href="#" class="comment-link">Comment</a>
+            {% else %}
+                Login to vote
+            {% endif %}
         </div>
         <div class="comments"></div>
         <div class="comment-form hidden">
