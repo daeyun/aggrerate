@@ -724,3 +724,51 @@ def attemptSource():
 @util.templated('history.html')
 def history():
     return
+
+@app.route('/review/get_votes/<review_id>/')
+def get_review_votes(review_id):
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute("""
+    SELECT
+        COALESCE(SUM(value), 0) AS sum
+    FROM
+        votes
+    WHERE
+        review_id = %s
+    """, (review_id,))
+    score = int(cur.fetchall()[0]['sum'])
+
+    return flask.jsonify({'score': score})
+
+@app.route('/review/submit_vote/', methods=['POST'])
+def submit_review_vote():
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute("""
+    REPLACE INTO
+        votes (review_id, user_id, value)
+    VALUES
+        (%s, %s, %s)
+    """, (
+            request.form['review_id'],
+            login.current_user.data['user_id'],
+            request.form['value']
+        )
+    )
+    db.commit()
+
+    # Now return the new value
+    cur.execute("""
+    SELECT
+        COALESCE(SUM(value), 0) AS sum
+    FROM
+        votes
+    WHERE
+        review_id = %s
+    """, (request.form['review_id'],))
+    score = int(cur.fetchall()[0]['sum'])
+
+    return flask.jsonify({'score': score})

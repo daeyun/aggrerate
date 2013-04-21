@@ -1,0 +1,8 @@
+{% extends 'inc/review.html' %}
+{% block header %}
+    <a class="close" href="{{ url_for('delete_review', product_id=product.id, review_id=review.id) }}">&times;</a>
+    Review by {{ review.username }}: {{ review.score }}
+{% endblock %}
+{% block body %}
+    {{ review.body_text | markdown }}
+{% endblock %}

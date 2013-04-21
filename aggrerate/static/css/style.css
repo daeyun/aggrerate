@@ -118,3 +118,56 @@ form.query-builder div.query-build-wrap div.query-input-parent input {
        -moz-box-shadow: none!important;
             box-shadow: none!important;
 }
+.review .review-interact {
+    color: #bbb;
+    font-size: 0.8em;
+    margin: 0;
+}
+.review .review-interact .review-interact-info {
+    background: #f5f5f5;
+    padding: 4px 6px;
+}
+.review .review-interact .review-interact-info a {
+    color: #86B6CF;
+}
+.review .review-interact .review-interact-info .separator {
+    margin: 0 2px;
+}
+.review .comment {
+    background: #fcfcfc;
+    border-top: 1px solid #f0f0f0;
+    margin: 0;
+    padding: 2px 6px;
+}
+.review .comment p {
+    margin: 4px 0;
+    padding: 0;
+}
+.review .comment-form {
+    background: white;
+    border: 1px solid #f3f3f3;
+    border-top: 1px solid #ccc;
+    margin: 0;
+    padding: 0;
+}
+.review .comment-form form {
+}
+.review .comment-form form textarea {
+    background: transparent;
+    border: none!important;
+    border-radius: 0;
+    display: inline-block;
+    font-size: 1em;
+    margin: 0!important;
+    padding: 4px 6px!important;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-box-shadow: none!important;
+       -moz-box-shadow: none!important;
+            box-shadow: none!important;
+}
+.review .comment-form form .form-actions {
+    background: #f7f7f7;
+    margin: 0;
+    padding: 8px;
+}

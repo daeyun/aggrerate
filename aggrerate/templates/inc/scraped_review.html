@@ -1,0 +1,7 @@
+{% extends 'inc/review.html' %}
+{% block header %}
+    {{ review.source_name }} says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
+{% endblock %}
+{% block body %}
+    {{ review.blurb | markdown }}
+{% endblock %}

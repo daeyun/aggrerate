@@ -14,23 +14,14 @@
             {% endif %}
             </div>
             {% for review in scraped_reviews %}
-                <div class="review">
-                    <h4>{{ review.source_name }} says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a></h4>
-                    {{ review.blurb | markdown }}
-                </div>
+                {% include "inc/scraped_review.html" %}
             {% endfor %}
         </div>
 
         <div class="user_reviews span6">
             <h3>User Reviews</h3>
             {% for review in user_reviews %}
-                <div class="review">
-                    <h4>
-                        <a class="close" href="{{ url_for('delete_review', product_id=product.id, review_id=review.id) }}">&times;</a>
-                        Review by {{ review.username }}: {{ review.score }}
-                    </h4>
-                    {{ review.body_text | markdown }}
-                </div>
+                {% include "inc/user_review.html" %}
             {% endfor %}
         </div>
     </div>
@@ -99,4 +90,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" src="/static/js/review_interact.js"></script> 
 {% endblock %}
