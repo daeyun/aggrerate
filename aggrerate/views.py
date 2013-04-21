@@ -25,6 +25,7 @@ def main():
     cur.execute("""
     SELECT
         users.name AS user_name,
+        users.full_name AS full_name,
         reviews.date AS review_date,
         reviews.score AS review_score,
         reviews.body_text AS text,
