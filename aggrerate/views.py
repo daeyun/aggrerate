@@ -547,7 +547,8 @@ def product(product_id=None):
         score,
         body_text,
         users.id AS user_id,
-        users.name AS username
+        users.name AS username,
+        users.full_name AS full_name
     FROM
         reviews
     INNER JOIN user_reviews

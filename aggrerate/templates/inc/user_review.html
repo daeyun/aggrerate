@@ -1,7 +1,7 @@
 {% extends 'inc/review.html' %}
 {% block header %}
     {% if review.user_id == current_user().data['user_id'] %}<a class="close" href="{{ url_for('delete_review', product_id=product.id, review_id=review.id) }}">&times;</a>{% endif %}
-    Review by {{ review.username }}: {{ review.score }}
+    <a href="{{ url_for('user_profile', username=review.username) }}">{{ review.full_name }}</a> says {{ review.score }}
 {% endblock %}
 {% block body %}
     {{ review.body_text | markdown }}
