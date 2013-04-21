@@ -72,6 +72,20 @@ def user_profile(username):
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
+        *
+    FROM
+        users
+    WHERE
+        users.name = %s
+    """, username)
+    user_profile = cur.fetchone()
+    if user_profile:
+        params['user'] = user_profile
+    else:
+        flask.abort(404)
+
+    cur.execute("""
+    SELECT
         reviews.date AS date,
         reviews.score AS score,
         reviews.product_id AS product_id,
