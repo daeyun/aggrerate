@@ -1,41 +1,35 @@
 {% extends "layout.html" %}
 {% block body %}
-<h2>Reviews by {{ dispUsername }} </h2>
+<h2>Reviews by <a href="{{ source_data[0].url }}">{{ source_data[0].name }}</a></h2>
+<div class="row">
+	
+	<!-- Header below the black bar -->
+	<div class="span8">
+        <h2>List reviews from {{ source_data[0].name }}</h2>
+        <ul>
+			{% for review in reviews %}
+           
+            <div class="review well">
+                <h4 class="product_name">
+                    <a href="{{ review.url }}">{{ review.manufacturer }} {{ review.product_name }}</a>    
+                </h4>
+                <p><b>{{ source_data[0].name }}</b>: "{{ review.blurb }}"</p>
+            </div>
+            
+            {% endfor %}
+        </ul>
+	</div>
 
-
-{% for review in reviews %}
-
-
-{# Need +0000 in date for it to recognize the timezone as GMT #}
-<h3><a href="{{ url_for('product', product_id=review.product_id) }}" title="Product details">{{ review.manufacturer }} {{ review.product_name }}</a>: 
-	{{ review.score }} <small class="pretty-date">{{ review.date }} +0000</small>
-	{% if username == dispUsername %}
-	<a class="close" href="{{ url_for('delete_review', review_id=review.id, username=username) }}">&times;</a>
-	{% endif %}
-</h3>
-{{ review.body_text | markdown }}
-
-{% endfor %}
-
-
-
-<form> {# class="form-horizontal" action="{{ url_for('attemptSource') }}" method="POST"> #}
-	<label class="radio">
-		<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
-		I have no preference.
-	</label>
-	<label class="radio">
-		<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-		Yes! I like this source.
-	</label>
-	<label class="radio">
-		<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-		Eww! No more of this source.
-	</label>
-
-	<input type="submit" value="Submit">
-</form>
-
+    <!-- Header below the black bar -->
+    <!--
+	<div class="span4">
+		<ul>
+            <!-- stuff here -->
+        
+        </ul>
+    </div>
+    -->
+</div>
 
 
 {% endblock %}
