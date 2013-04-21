@@ -171,3 +171,6 @@ form.query-builder div.query-build-wrap div.query-input-parent input {
     margin: 0;
     padding: 8px;
 }
+.hidden {
+    display: none;
+}

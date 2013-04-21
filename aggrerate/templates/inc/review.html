@@ -5,6 +5,15 @@
         <div class="review-interact-info">
             <span class="votes"></span> <a href="" class="upvote-link">Upvote</a><span class="separator">/</span><a href="" class="downvote-link">Downvote</a><span class="separator">/</span><a href="" class="novote-link">No vote</a> &middot; <a href="#" class="comment-link">Comment</a>
         </div>
+        <div class="comments"></div>
+        <div class="comment-form hidden">
+            <form action="/review/post_comment/" method="GET">
+                <textarea name="body_text"></textarea>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-mini">Post comment</button>
+                </div>
+            </form>
+        </div>
         {#
         <div class="comment">
             <p><a href="/users/jeff/">Jeff</a> Aliquam tincidunt mi malesuada lorem aliquam quis imperdiet lacus suscipit. Nulla commodo congue nisi in volutpat. Nunc in leo eget tortor ultricies posuere ac sit amet leo.</p>
@@ -12,14 +21,6 @@
         </div>
         <div class="comment">
             <p><a href="/users/jeff/">Henry</a> Aliquam tincidunt.</p>
-        </div>
-        <div class="comment-form">
-            <form action="/comment/post/" method="GET">
-                <textarea name="comment"></textarea>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-mini">Post comment</button>
-                </div>
-            </form>
         </div>
         #}
     </div>

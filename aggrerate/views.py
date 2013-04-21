@@ -772,3 +772,84 @@ def submit_review_vote():
     score = int(cur.fetchall()[0]['sum'])
 
     return flask.jsonify({'score': score})
+
+@app.route('/review/get_comments/<review_id>/')
+@util.templated('ajax/comments.html')
+def get_review_comments(review_id):
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute("""
+    SELECT
+        comments.id,
+        comments.body_text,
+        users.id AS user_id,
+        users.name,
+        users.full_name
+    FROM
+        comments
+    INNER JOIN users
+        ON comments.user_id = users.id
+    WHERE
+        review_id = %s
+    ORDER BY
+        comments.id ASC
+    """, (review_id,))
+    comments = cur.fetchall()
+
+    return {'comments': comments}
+
+@app.route('/review/post_comment/', methods=['POST'])
+@util.templated('ajax/comments.html')
+def post_review_comment():
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute("""
+    INSERT INTO
+        comments (user_id, review_id, body_text)
+    VALUES
+        (%s, %s, %s)
+    """, (
+            login.current_user.data['user_id'],
+            request.form['review_id'],
+            request.form['body_text']
+        )
+    )
+    db.commit()
+
+    cur.execute("""
+    SELECT
+        comments.id,
+        comments.body_text,
+        users.id AS user_id,
+        users.name,
+        users.full_name
+    FROM
+        comments
+    INNER JOIN users
+        ON comments.user_id = users.id
+    WHERE
+        review_id = %s
+    ORDER BY
+        comments.id ASC
+    """, (request.form['review_id'],))
+    comments = cur.fetchall()
+
+    return {'comments': comments}
+
+@app.route('/review/delete_comment/', methods=['POST'])
+def delete_review_comment():
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    deleted = cur.execute("""
+    DELETE FROM
+        comments
+    WHERE
+        id = %s
+    AND user_id = %s
+    """, (request.form['comment_id'], login.current_user.data['user_id']))
+    db.commit()
+
+    return flask.jsonify({'deleted': deleted})

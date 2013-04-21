@@ -1,0 +1,8 @@
+{% for comment in comments %}
+    <div class="comment">
+        {% if comment.user_id == current_user().data["user_id"] %}<a class="close comment-delete-link" href="" id="c{{ comment.id }}">&times;</a>{% endif %}
+{% filter markdown %}
+<strong><a href="{{ url_for('user_profile', username=comment.name) }}">{{ comment.name }}</a></strong> {{ comment.body_text }}
+{% endfilter %}
+    </div>
+{% endfor %}
