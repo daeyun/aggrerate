@@ -1,6 +1,6 @@
 {% extends 'inc/review.html' %}
 {% block header %}
-<a href="{{ url_for("source", review_source_id=review.review_source_id) }}">{{ review.source_name }}</a> says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
+    <a href="{{ url_for("source", review_source_id=review.review_source_id) }}">{{ review.source_name }}</a> says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
 {% endblock %}
 {% block body %}
     {{ review.blurb | markdown }}

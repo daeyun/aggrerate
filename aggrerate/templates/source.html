@@ -1,35 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
-<h2>Reviews by <a href="{{ source_data[0].url }}">{{ source_data[0].name }}</a></h2>
-<div class="row">
-	
-	<!-- Header below the black bar -->
-	<div class="span8">
-        <h2>List reviews from {{ source_data[0].name }}</h2>
-        <ul>
-			{% for review in reviews %}
-           
-            <div class="review well">
-                <h4 class="product_name">
-                    <a href="{{ review.url }}">{{ review.manufacturer }} {{ review.product_name }}</a>    
-                </h4>
-                <p><b>{{ source_data[0].name }}</b>: "{{ review.blurb }}"</p>
-            </div>
-            
+    <h2>Reviews by <a href="{{ source_data[0].url }}">{{ source_data[0].name }}</a></h2>
+    <div class="row">
+        <!-- Header below the black bar -->
+        <div class="span8">
+            <h2>List reviews from {{ source_data[0].name }}</h2>
+            {% for review in reviews %}
+                <div class="review well">
+                    <h4 class="product_name">
+                        <a href="{{ review.url }}">{{ review.manufacturer }} {{ review.product_name }}</a>    
+                    </h4>
+                    <p><b>{{ source_data[0].name }}</b>: "{{ review.blurb }}"</p>
+                </div>
             {% endfor %}
-        </ul>
-	</div>
+        </div>
 
-    <!-- Header below the black bar -->
-    <!--
-	<div class="span4">
-		<ul>
+        <!-- Header below the black bar -->
+        <!--
+        <div class="span4">
             <!-- stuff here -->
-        
-        </ul>
+        </div>
+        -->
     </div>
-    -->
-</div>
-
-
 {% endblock %}
