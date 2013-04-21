@@ -28,7 +28,7 @@ def extract_keywords():
 
     query_result = cur.fetchall()
     for item in query_result:
-        string = strip_tags(item["body_text"])
+        string = item["body_text"]
 
         words = string.split()
 
@@ -50,17 +50,17 @@ def extract_keywords():
     ORDER BY
         id DESC
     LIMIT
-        5
+        10
     """)
     query_result = cur.fetchall()
     for item in query_result:
-        string = strip_tags(item["body_text"])
+        string = item["body_text"]
 
         tlm = {}
         sn_tlm = {}
         total = 0
 
-        string = strip_tags(item["body_text"])
+        string = item["body_text"]
 
         words = string.split()
 
@@ -88,17 +88,6 @@ def extract_keywords():
                 break
 
         print ""
-
-
-def strip_tags(string):
-    string = re.sub(r'\{[\s\S]*?\}', r'', string)
-    string = re.sub(r'\<[\s\S]*?\>', r'', string)
-    string = re.sub(r'//.*', r'', string)
-    string = re.sub(r'[\(\)]', r'', string)
-    string = re.sub(r'[^ a-zA-Z0-9\.\-\_\/\t\n]', r'', string)
-    string = string.lower()
-    string = re.sub(r'[a-z ]\.[a-z \n\t\r]', r'', string)
-    return string
 
 
 extract_keywords()
