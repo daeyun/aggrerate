@@ -19,33 +19,37 @@
         
         <div class="span6">
             <h2>Review Source Preferences</h2>
-            <em>Slide the cursor below to change the weight this source has in your calculated scores.</em>
-            <table class="table source-preferences-table">
-                <thead>
-                    <tr>
-                        <th>Source</th>
-                        <th>Affinity</th>
-                    </tr>
-                </thead>
 
-                 
-                <tbody>
-                    <tr>
-                        <td>{{ source_data[0].name }}</td>
-                        <td>
+            {% if active_user %}
 
-                                <input type="range" min="0" max="2" step="0.1" name="priority" value="...">
-                            <!--
-                            <form class="form-inline source-preferences-form" action="/user/set_preferences/">
-                                <input type="hidden" name="source_id" value="{{ source_data[0].name }}">
-                                <input type="range" min="0" max="2" step="0.1" name="priority" value="...">
-                            </form>
-                            -->
-                        </td>
-                    </tr>
-                </tbody>
+                <em>Use the slider below to change the weight this source has in your calculated scores.</em>
+                <table class="table source-preferences-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Affinity</th>
+                        </tr>
+                    </thead>
 
-            </table>
+                     
+                    <tbody>
+                        <tr>
+                            <td>{{ source_data[0].name }}</td>
+                            <td>
+
+                                <form class="form-inline source-preferences-form" action="/user/set_preferences/">
+                                    <input type="hidden" name="user_preference_id" value="{{ reviews.user_preferences_id }}"> <!-- TODO -->
+                                    <input type="hidden" name="source_id" value="{{ source_data[0].name }}">
+                                    <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ reviews.priority }}" >
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            {% else %}
+                <em>Please log in to change your user preferences</em>
+            {% endif %}
         </div>
         
         
