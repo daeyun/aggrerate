@@ -530,6 +530,7 @@ def product(product_id=None):
         date,
         score,
         body_text,
+        users.id AS user_id,
         users.name AS username
     FROM
         reviews
