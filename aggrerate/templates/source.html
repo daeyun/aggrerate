@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-    <h2>Reviews by <a href="{{ source_data[0].url }}">{{ source_data[0].name }}</a></h2>
+
     <div class="row">
         <!-- Header below the black bar -->
-        <div class="span8">
-            <h2>List reviews from {{ source_data[0].name }}</h2>
+        <div class="span6">
+            <h2>Reviews by <a href="{{ source_data[0].url }}">{{ source_data[0].name }}</a></h2>
             {% for review in reviews %}
                 <div class="review well">
                     <h4 class="product_name">
@@ -16,10 +16,42 @@
         </div>
 
         <!-- Header below the black bar -->
-        <!--
-        <div class="span4">
-            <!-- stuff here -->
+        
+        <div class="span6">
+            <h2>Review Source Preferences</h2>
+            <em>Slide the cursor below to change the weight this source has in your calculated scores.</em>
+            <table class="table source-preferences-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Affinity</th>
+                    </tr>
+                </thead>
+
+                 
+                <tbody>
+                    <tr>
+                        <td>{{ source_data[0].name }}</td>
+                        <td>
+
+                                <input type="range" min="0" max="2" step="0.1" name="priority" value="...">
+                            <!--
+                            <form class="form-inline source-preferences-form" action="/user/set_preferences/">
+                                <input type="hidden" name="source_id" value="{{ source_data[0].name }}">
+                                <input type="range" min="0" max="2" step="0.1" name="priority" value="...">
+                            </form>
+                            -->
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
         </div>
-        -->
+        
+        
+        
+        
+        
+        
     </div>
 {% endblock %}
