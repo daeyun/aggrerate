@@ -526,6 +526,7 @@ def product(product_id=None):
         date,
         score,
         blurb,
+        review_sources.id AS review_source_id,
         review_sources.name AS source_name
     FROM
         reviews
@@ -729,10 +730,54 @@ def execute_search():
 
     return {'body': json.dumps({'query': query, 'requirements': requirements})}
 
-@app.route('/source/id/')
+# Takes in the name of a source, and shows the
+# source's information
+@app.route('/source/<review_source_id>/')
 @util.templated('source.html')
-def source():
-    return
+def source(review_source_id):
+
+    params = cookie_params(request)
+
+    # Returns a relation whose attributes have
+    # 1. Name of the source (ex: The Verge)
+    # 2. The URL of the source (ex: www.theverge.com)
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        name,
+        url
+    FROM
+        review_sources
+    WHERE
+        review_sources.id = %s
+    """, review_source_id)
+    source_data = cur.fetchall()
+    params['source_data'] = source_data
+
+    # Returns a relation that contains
+    # 1. A product name
+    # 2. The source's review for the product
+    # 3. URL to the review
+    cur.execute("""
+    SELECT
+        products.name           AS product_name,
+        manufacturers.name      AS manufacturer,
+        scraped_reviews.blurb   AS blurb,
+        scraped_reviews.url     AS url
+    FROM
+        scraped_reviews INNER JOIN reviews
+            ON scraped_reviews.review_id = reviews.id
+        INNER JOIN products
+            ON reviews.product_id = products.id
+        INNER JOIN manufacturers
+            ON products.manufacturer_id = manufacturers.id
+    WHERE
+        scraped_reviews.review_source_id = %s
+    """, review_source_id)
+    reviews = cur.fetchall()    # contains all of the reviews
+    params['reviews'] = reviews
+
+    return params
 
 @app.route('/attemptSource', methods=["POST"])
 def attemptSource():
