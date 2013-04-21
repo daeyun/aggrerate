@@ -66,6 +66,8 @@ def reviews():
 @util.templated("user.html")
 def user_profile(username):
     params = cookie_params(request)
+    if username == login.current_user.data['username']:
+        params['active_user'] = True
 
     (db, cur) = util.get_dict_cursor()
     cur.execute("""

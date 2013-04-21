@@ -14,19 +14,21 @@
             {% endfor %}
         </div>
         <div class="span6">
-            <h2>Review Source Preferences</h2>
-            <ul>
-                {% for preference in preferences %}
-                    <li>
-                    <form class="form-inline source-preferences-form" action="/user/set_preferences/">
-                            {{ preference.source_name }}:
-                            <input type="hidden" name="user_preference_id" value="{{ preference.user_preference_id }}">
-                            <input type="hidden" name="source_id" value="{{ preference.source_id }}">
-                            <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ preference.priority }}">
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
+            {% if active_user %}
+                <h2>Review Source Preferences</h2>
+                <ul>
+                    {% for preference in preferences %}
+                        <li>
+                        <form class="form-inline source-preferences-form" action="/user/set_preferences/">
+                                {{ preference.source_name }}:
+                                <input type="hidden" name="user_preference_id" value="{{ preference.user_preference_id }}">
+                                <input type="hidden" name="source_id" value="{{ preference.source_id }}">
+                                <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ preference.priority }}">
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
