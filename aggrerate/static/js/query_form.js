@@ -89,6 +89,7 @@ $(function() {
                     ajax_submit();
                 } else if ($wrapper.state == 0 && $input.val() == '' && !$wrapper.is(':last-child')) {
                     $wrapper.remove();
+                    ajax_submit();
                 }
             });
         });
