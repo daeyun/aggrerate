@@ -31,7 +31,11 @@ class ReviewScraper(object):
             # We use Python's builtin HTML parser instead of lxml because lxml
             # seems to fail partway through parsing some pages (because of
             # errors? size? not sure)
-            self.soup = BeautifulSoup(p.read(), "html.parser")
+            # 
+            # Updated: for some reason, the builtin HTML parser didn't work
+            # but lxml worked.
+            self.soup = BeautifulSoup(p.read(), "lxml")
+            # self.soup = BeautifulSoup(pp, "html.parser")
         except:
             print "Failed to download page '%s'" % self.url
 
