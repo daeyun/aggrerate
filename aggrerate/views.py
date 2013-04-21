@@ -621,9 +621,9 @@ def scrape():
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     INSERT INTO
-        reviews
-    VALUES (NULL, NOW(), %s, %s, %s)
-    """, (scraper.score, request.form['product_id'], scraper.body)
+        reviews (date, score, product_id, body_text)
+    VALUES (%s, %s, %s, %s)
+    """, (scraper.timestamp, scraper.score, request.form['product_id'], scraper.body)
     )
     cur.execute("""
     INSERT INTO

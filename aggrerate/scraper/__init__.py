@@ -13,6 +13,7 @@ class ReviewScraper(object):
         self.score = None
         self.blurb = None
         self.body  = None
+        self.timestamp = None
 
     @classmethod
     def from_url(cls, url):
@@ -43,7 +44,7 @@ class ReviewScraper(object):
         raise NotImplementedError
 
     def __str__(self):
-        return '%s(%s)' % (self.__class__.site_name, self.score)
+        return '%s(%s, %s)' % (self.__class__.site_name, self.score, self.timestamp)
 
 def register_scraper(scraper):
     ReviewScraper.scrapers.append(scraper)

@@ -1,5 +1,5 @@
 <div class="review" id="r{{ review.id }}">
-    <h4>{% block header %}{% endblock %}</h4>
+    <h4>{% block header %}{% endblock %} <small>(<span class="review_date pretty-date">{{ review.date }} +00:00</span>)</small></h4>
     {% block body %}{% endblock %}
     <div class="review-interact">
         <div class="review-interact-info">
@@ -14,14 +14,5 @@
                 </div>
             </form>
         </div>
-        {#
-        <div class="comment">
-            <p><a href="/users/jeff/">Jeff</a> Aliquam tincidunt mi malesuada lorem aliquam quis imperdiet lacus suscipit. Nulla commodo congue nisi in volutpat. Nunc in leo eget tortor ultricies posuere ac sit amet leo.</p>
-            <p>Pretty nice</p>
-        </div>
-        <div class="comment">
-            <p><a href="/users/jeff/">Henry</a> Aliquam tincidunt.</p>
-        </div>
-        #}
     </div>
 </div>

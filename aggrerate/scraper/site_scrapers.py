@@ -1,4 +1,5 @@
 from bs4 import UnicodeDammit
+from datetime import datetime
 import itertools
 
 from aggrerate.scraper import ReviewScraper, register_scraper
@@ -25,6 +26,9 @@ class VergeScraper(ReviewScraper):
                 self.soup.find(class_="conclusion").find(class_="big").text.strip()
             self.body = \
                 util.strip_tags(str(self.soup.find(class_="entry-content")))
+            # We can write this as a string straight into the db
+            self.timestamp = \
+                self.soup.time['datetime']
         except:
             print "Unable to find score on given page"
 
@@ -48,6 +52,8 @@ class CNETScraper(ReviewScraper):
                 self.soup.find(class_="theBottomLine").span.text.strip()
             self.body = \
                 util.strip_tags(str(self.soup.find(id="contentBody")))
+            self.timestamp = \
+                self.soup.time['datetime']
         except:
             print "Unable to find score on given page"
 
@@ -72,6 +78,12 @@ class GdgtScraper(ReviewScraper):
                     self.soup.find(class_="gdgt-says").h2.stripped_strings))
             self.body = \
                 util.strip_tags(str(self.soup.find(class_="gdgt-says")))
+
+            # There is no publish date for gdgt, but it is a composite score
+            # anyways. We consider the composite score to be valid on the date
+            # that the last review was published.
+            self.timestamp = \
+                sorted(map(lambda t: t['datetime'], self.soup.find_all('time')))[-1]
         except:
             print "Unable to find score on given page"
 
@@ -97,6 +109,9 @@ class PCMagScraper(ReviewScraper):
             self.body = \
                 util.strip_tags(str(self.soup.find(class_="pros-cons-bl")) +
                                 str(self.soup.find(class_="review-body")))
+            self.timestamp = \
+                datetime.strptime(self.soup.find(class_="dtreviewed").text.strip(),
+                    "%B %d, %Y").strftime("%Y-%m-%d")
         except:
             import sys
             print sys.exc_info()[0]
@@ -121,5 +136,9 @@ class WiredScraper(ReviewScraper):
             self.blurb = self.soup.find(class_="explanation").text
             self.body = \
                 util.strip_tags(str(self.soup.find(class_="entry")))
+
+            self.timestamp = \
+                filter(lambda x: x.has_key('name') and x['name'] == 'DisplayDate',
+                    self.soup.find_all("meta"))[0]['content']
         except:
             print "Unable to find score on given page"

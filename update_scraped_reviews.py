@@ -34,19 +34,19 @@ def update_scraped_reviews():
         scrapedReviewId = result["sr.id"]
 
         print "Updating %s" % result
-        print "Score: %s, Words in body text: %s" % \
-            (scraper.score, len(scraper.body.split()))
+        print "Score: %s, Words in body text: %s, New Date: %s" % \
+            (scraper.score, len(scraper.body.split()), scraper.timestamp)
 
         cur.execute("""
         UPDATE
             reviews
         SET
-            date = NOW(),
             score = %s,
-            body_text = %s
+            body_text = %s,
+            date = %s
         WHERE
             reviews.id = %s
-        """, (scraper.score, scraper.body, reviewId)
+        """, (scraper.score, scraper.body, scraper.timestamp, reviewId)
         )
 
         cur.execute("""

@@ -6,7 +6,7 @@
     <div class="review well">
         <h4 class="product_name">{{ r.manufacturer_name }} {{ r.product_name }}</h4>
         <span class="stars">{{ r.review_score }}</span>
-        <span class="review_date pretty-date">Date: {{ r.review_date }} </span>
+        <span class="review_date pretty-date">{{ r.review_date }} +00:00</span>
         <div><a href="{{ url_for('user_profile', username=r.user_name) }}">{{ r.full_name }}</a> wrote:</div>
         <p>{{ r.text }} </p>
     </div>
