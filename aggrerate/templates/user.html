@@ -16,18 +16,28 @@
         <div class="span6">
             {% if active_user %}
                 <h2>Review Source Preferences</h2>
-                <ul>
-                    {% for preference in preferences %}
-                        <li>
-                        <form class="form-inline source-preferences-form" action="/user/set_preferences/">
-                                {{ preference.source_name }}:
-                                <input type="hidden" name="user_preference_id" value="{{ preference.user_preference_id }}">
-                                <input type="hidden" name="source_id" value="{{ preference.source_id }}">
-                                <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ preference.priority }}">
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <table class="table source-preferences-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Affinity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for preference in preferences %}
+                            <tr>
+                                <td>{{ preference.source_name }}</td>
+                                <td>
+                                    <form class="form-inline source-preferences-form" action="/user/set_preferences/">
+                                        <input type="hidden" name="user_preference_id" value="{{ preference.user_preference_id }}">
+                                        <input type="hidden" name="source_id" value="{{ preference.source_id }}">
+                                        <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ preference.priority }}">
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
     </div>
