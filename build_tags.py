@@ -1,14 +1,14 @@
 import re
 import operator
-
-from flask import render_template, request
-import flask, time
-
+import flask
+import time
 from aggrerate import app, util
 from aggrerate.loginCode import loginCode, flogin
 from aggrerate.scraper import ReviewScraper
 from aggrerate.scraper.specifications import SpecificationScraper
+from flask import render_template, request
 from flask.ext import login
+
 
 def is_number(s):
     try:
@@ -17,6 +17,7 @@ def is_number(s):
     except ValueError:
         pass
     return False
+
 
 def extract_keywords():
     (db, cur) = util.get_dict_cursor()
@@ -53,7 +54,6 @@ def extract_keywords():
     for word in blm:
         smoothed_blm[word] = (blm[word]+1) / float(total+20000)
 
-
     product_ids = []
 
     cur.execute("""
@@ -71,8 +71,6 @@ def extract_keywords():
     query_result = cur.fetchall()
     for item in query_result:
         product_ids.append(item["product_id"])
-
-
 
     for product_id in product_ids:
         tlm = {}
@@ -104,22 +102,22 @@ def extract_keywords():
                     tlm[word] = 1
 
         for word in tlm:
-            tlm[word] = max(tlm[word],0) / float(total)
+            tlm[word] = max(tlm[word], 0) / float(total)
             # divide by smoothed background language model
             sn_tlm[word] = tlm[word] / smoothed_blm[word]
 
         sorted_sn_tlm = sorted(sn_tlm.iteritems(), key=operator.itemgetter(1),
-                            reverse=True)
+                               reverse=True)
 
         count = 0
-        
+
         print product_id
-        
+
         tags = []
 
         for pair in sorted_sn_tlm:
             if len(pair[0]) == 1 or is_number(pair[0]) or "cnet" in pair[0] or\
-                "verge" in pair[0] or "mags" in pair[0] or "wired" in pair[0]:
+               "verge" in pair[0] or "mags" in pair[0] or "wired" in pair[0]:
                     continue
             count += 1
             print str(pair[1])[:9], pair[0]
@@ -127,35 +125,15 @@ def extract_keywords():
             if count >= 40:
                 break
 
-        stringified_tags =  ",".join(tags)
+        stringified_tags = ",".join(tags)
         print stringified_tags
 
         print ""
-
-
 
         cur.execute("""
         INSERT INTO product_tags VALUES (NULL, %s, %s)
         ON DUPLICATE KEY UPDATE product_id = %s, tags = %s;
         """, (product_id, stringified_tags, product_id, stringified_tags))
         db.commit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 extract_keywords()

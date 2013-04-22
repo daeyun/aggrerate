@@ -2,6 +2,7 @@ from aggrerate import util
 from bcrypt import hashpw, gensalt
 
 
+# Hashes all plaintext passwords in the users table.
 def hash_plaintext():
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
@@ -11,7 +12,7 @@ def hash_plaintext():
         users
     """)
     fetch = cur.fetchall()
-    
+
     for account in fetch:
 
         password = account["password"]
