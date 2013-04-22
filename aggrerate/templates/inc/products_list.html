@@ -15,6 +15,9 @@
         {% if has_avg_user_scores %}
             <th>Average user score</th>
         {% endif %}
+        {% if has_rec_scores %}
+            <th>Recommendation score</th>
+        {% endif %}
     </tr>
     {% for product in products %}
     <tr>
@@ -54,6 +57,11 @@
                 {%- else -%}
                     <span class="muted">No ratings</span>
                 {% endif %}
+            </td>
+        {% endif %}
+        {% if has_rec_scores %}
+            <td>
+                {{- product.rec_score }}
             </td>
         {% endif %}
     </tr>
