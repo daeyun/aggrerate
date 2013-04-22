@@ -22,23 +22,20 @@ $(function() {
         });
     });
 
-
-
-
-
-
-
     var fill = d3.scale.category20();
+    product_tags = $("#tagvis").attr("tags");
 
-    d3.layout.cloud().size([470, 250])
-        .words($("#tagvis").attr("tags").split(',').map(function(d,index) {
-                    return {text: d, size: (2.5-Math.atan(index))*27};
-                }))
-        .rotate(function() { return (Math.random()*2-1)*5; })
-        .font("Impact")
-        .fontSize(function(d) { return d.size; })
-        .on("end", draw)
-        .start();
+    if (product_tags != undefined) {
+        d3.layout.cloud().size([470, 250])
+            .words(product_tags.split(',').map(function(d,index) {
+                        return {text: d, size: (2.5-Math.atan(index))*27};
+                    }))
+            .rotate(function() { return (Math.random()*2-1)*5; })
+            .font("Impact")
+            .fontSize(function(d) { return d.size; })
+            .on("end", draw)
+            .start();
+    }
 
     function draw(words) {
         d3.select("#tagvis").append("svg")
@@ -59,5 +56,4 @@ $(function() {
         .text(function(d) { return d.text; });
     }
 
-    
 });
