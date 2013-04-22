@@ -83,7 +83,8 @@ class GdgtScraper(ReviewScraper):
             # anyways. We consider the composite score to be valid on the date
             # that the last review was published.
             self.timestamp = \
-                sorted(map(lambda t: t['datetime'], self.soup.find_all('time')))[-1]
+                sorted(map(lambda t: datetime.strptime(t.contents[2].strip(), "%b %d, %Y").strftime("%Y-%m-%d"),
+                    self.soup.find(id='critic-reviews-stream').find_all('header')))[-1]
         except:
             print "Unable to find score on given page"
 
