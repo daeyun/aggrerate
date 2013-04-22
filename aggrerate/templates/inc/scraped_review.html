@@ -1,6 +1,12 @@
 {% extends 'inc/review.html' %}
 {% block header %}
-    <a href="{{ url_for("source", review_source_id=review.review_source_id) }}">{{ review.source_name }}</a> says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
+    {% if product_page %}
+        <a href="{{ url_for("source", review_source_id=review.review_source_id) }}">{{ review.source_name }}</a> says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
+    {% elif source_page %}
+        <a href="{{ url_for("product", product_id=review.product_id) }}">{{ review.manufacturer }} {{ review.product_name }}</a> &mdash; <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
+    {% else %}
+        <a href="{{ url_for("product", product_id=review.product_id) }}">{{ review.manufacturer }} {{ review.product_name }}</a> &mdash; <a href="{{ url_for("source", review_source_id=review.review_source_id) }}">{{ review.source_name }}</a> says <a href="{{ review.url }}" title="Original review">{{ review.score }}</a>
+    {% endif %}
 {% endblock %}
 {% block body %}
     {{ review.blurb | markdown }}

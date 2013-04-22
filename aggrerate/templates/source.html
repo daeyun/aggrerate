@@ -4,25 +4,17 @@
     <div class="row">
         <!-- Header below the black bar -->
         <div class="span6">
-            <h2>Reviews by <a href="{{ source_data[0].url }}">{{ source_data[0].name }}</a></h2>
+            <h2>Reviews by <a href="{{ source_data.url }}">{{ source_data.name }}</a></h2>
             {% for review in reviews %}
-                <div class="review well">
-                    <h4 class="product_name">
-                        <a href="{{ review.url }}">{{ review.manufacturer }} {{ review.product_name }}</a>    
-                    </h4>
-                    <p><b>{{ source_data[0].name }}</b>: "{{ review.blurb }}"</p>
-                </div>
+                {% include "inc/scraped_review.html" %}
             {% endfor %}
         </div>
 
         <!-- Header below the black bar -->
-        
         <div class="span6">
             <h2>Review Source Preferences</h2>
-
             {% if active_user %}
-
-                <em>Use the slider below to change the weight this source has in your calculated scores.</em>
+                <p>Use the slider to change the weight this source has in metascores calculated for you.</p>
                 <table class="table source-preferences-table">
                     <thead>
                         <tr>
@@ -30,17 +22,13 @@
                             <th>Affinity</th>
                         </tr>
                     </thead>
-
-                     
                     <tbody>
                         <tr>
-                            <td>{{ source_data[0].name }}</td>
+                            <td>{{ source_data.name }}</td>
                             <td>
-
                                 <form class="form-inline source-preferences-form" action="/user/set_preferences/">
-                                    <input type="hidden" name="user_preference_id" value="{{ reviews.user_preferences_id }}"> <!-- TODO -->
-                                    <input type="hidden" name="source_id" value="{{ source_data[0].name }}">
-                                    <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ reviews.priority }}" >
+                                    <input type="hidden" name="source_id" value="{{ source_data.id }}">
+                                    <input type="range" min="0" max="2" step="0.1" name="priority" value="{{ original_priority }}" >
                                 </form>
                             </td>
                         </tr>
@@ -48,14 +36,8 @@
 
                 </table>
             {% else %}
-                <em>Please log in to change your user preferences</em>
+                <p>Please log in to change your user preferences.</p>
             {% endif %}
         </div>
-        
-        
-        
-        
-        
-        
     </div>
 {% endblock %}

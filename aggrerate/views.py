@@ -563,6 +563,10 @@ def product(product_id=None):
     """, (product_id,))
     params['user_reviews'] = cur.fetchall()
 
+    # Modify the behavior of inc/review.html linking
+    params['product_page'] = True
+    params['source_page'] = False
+
     return params
 
 @app.route("/products/<product_id>/post_review/", methods=["POST"])
@@ -870,7 +874,6 @@ def delete_review_comment():
 @app.route('/source/<review_source_id>/')
 @util.templated('source.html')
 def source(review_source_id):
-
     params = cookie_params(request)
 
     if params["username"] != "anonymous":
@@ -884,6 +887,7 @@ def source(review_source_id):
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
+        id,
         name,
         url
     FROM
@@ -891,7 +895,9 @@ def source(review_source_id):
     WHERE
         review_sources.id = %s
     """, review_source_id)
-    source_data = cur.fetchall()
+    source_data = cur.fetchone()
+    if not source_data:
+        flask.abort(404)
     params['source_data'] = source_data
 
     # Returns a relation that contains
@@ -900,31 +906,48 @@ def source(review_source_id):
     # 3. URL to the review
     cur.execute("""
     SELECT
-        products.name           AS product_name,
-        manufacturers.name      AS manufacturer,
+        reviews.id              AS id,
+        reviews.date            AS date,
+        reviews.score           AS score,
         scraped_reviews.blurb   AS blurb,
         scraped_reviews.url     AS url,
-        user_preferences.id     AS user_preferences_id,
-        user_preferences.priority AS priority
+        review_sources.name     AS source_name,
+        products.id             AS product_id,
+        products.name           AS product_name,
+        manufacturers.name      AS manufacturer
     FROM
-        scraped_reviews INNER JOIN reviews
-            ON scraped_reviews.review_id = reviews.id
-        INNER JOIN products
-            ON reviews.product_id = products.id
-        INNER JOIN manufacturers
-            ON products.manufacturer_id = manufacturers.id
-        INNER JOIN user_preferences
-            ON scraped_reviews.review_source_id = user_preferences.review_sources_id
+        scraped_reviews
+    INNER JOIN reviews
+        ON scraped_reviews.review_id = reviews.id
+    INNER JOIN review_sources
+        ON scraped_reviews.review_source_id = review_sources.id
+    INNER JOIN products
+        ON reviews.product_id = products.id
+    INNER JOIN manufacturers
+        ON products.manufacturer_id = manufacturers.id
     WHERE
         scraped_reviews.review_source_id = %s
     """, review_source_id)
     reviews = cur.fetchall()    # contains all of the reviews
     params['reviews'] = reviews
 
+    cur.execute("""
+    SELECT
+        priority
+    FROM
+        user_preferences
+    WHERE
+        user_id = %s
+    AND review_sources_id = %s
+    """, (login.current_user.data["user_id"], source_data['id']))
+    preferences = cur.fetchone()
+    if preferences:
+        params['original_priority'] = (preferences['priority'])
+    else:
+        params['original_priority'] = 1.0
+
+    # Modify the behavior of inc/review.html linking
+    params['product_page'] = False
+    params['source_page'] = True
+
     return params
-
-@app.route('/attemptSource', methods=["POST"])
-def attemptSource():
-    # Put more lines of code down here
-    return
-
