@@ -400,7 +400,11 @@ def edit_product(product_id):
             id = %s
         """, (product_id,)
         )
+
         params['product'] = cur.fetchone()
+        if not params['product']:
+            flask.abort(404)
+
         params['manufacturers'] = util.get_manufacturers(cur)
         params['categories'] = util.get_product_categories(cur)
         return render_template('product_edit.html', **params)
@@ -409,6 +413,22 @@ def edit_product(product_id):
     if request.form.has_key('cancel'):
         flask.flash('Changes canceled', 'info')
         return flask.redirect(flask.url_for('product', product_id=product_id))
+
+    if request.form.has_key('delete'):
+        deleted = cur.execute("""
+        DELETE FROM
+            products
+        WHERE
+            id = %s
+        """, (product_id,))
+        db.commit()
+
+        if deleted:
+            flask.flash('Product deleted', 'success')
+            return flask.redirect(flask.url_for('products_list'))
+        else:
+            flask.flash('Failed to delete product', 'error')
+            return flask.redirect(flask.url_for('edit_product', product_id=product_id))
 
     # Prepare form values
     product_name = request.form['product_name']
@@ -562,6 +582,10 @@ def product(product_id=None):
         product_id = %s
     """, (product_id,))
     params['user_reviews'] = cur.fetchall()
+
+    # Modify the behavior of inc/review.html linking
+    params['product_page'] = True
+    params['source_page'] = False
 
     return params
 
@@ -758,6 +782,7 @@ def modify_score(baseScore, specification, requirement):
                 return baseScore -2
     else:
         return baseScore-1
+
 @app.route('/execute_search/')
 @util.templated('ajax/query_response.html')
 def execute_search():
@@ -1039,3 +1064,86 @@ def delete_review_comment():
     db.commit()
 
     return flask.jsonify({'deleted': deleted})
+
+# Takes in the name of a source, and shows the
+# source's information
+@app.route('/source/<review_source_id>/')
+@util.templated('source.html')
+def source(review_source_id):
+    params = cookie_params(request)
+
+    if params["username"] != "anonymous":
+        params['active_user'] = True
+    else:
+        params['active_user'] = False
+
+    # Returns a relation whose attributes have
+    # 1. Name of the source (ex: The Verge)
+    # 2. The URL of the source (ex: www.theverge.com)
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        id,
+        name,
+        url
+    FROM
+        review_sources
+    WHERE
+        review_sources.id = %s
+    """, review_source_id)
+    source_data = cur.fetchone()
+    if not source_data:
+        flask.abort(404)
+    params['source_data'] = source_data
+
+    # Returns a relation that contains
+    # 1. A product name
+    # 2. The source's review for the product
+    # 3. URL to the review
+    cur.execute("""
+    SELECT
+        reviews.id              AS id,
+        reviews.date            AS date,
+        reviews.score           AS score,
+        scraped_reviews.blurb   AS blurb,
+        scraped_reviews.url     AS url,
+        review_sources.name     AS source_name,
+        products.id             AS product_id,
+        products.name           AS product_name,
+        manufacturers.name      AS manufacturer
+    FROM
+        scraped_reviews
+    INNER JOIN reviews
+        ON scraped_reviews.review_id = reviews.id
+    INNER JOIN review_sources
+        ON scraped_reviews.review_source_id = review_sources.id
+    INNER JOIN products
+        ON reviews.product_id = products.id
+    INNER JOIN manufacturers
+        ON products.manufacturer_id = manufacturers.id
+    WHERE
+        scraped_reviews.review_source_id = %s
+    """, review_source_id)
+    reviews = cur.fetchall()    # contains all of the reviews
+    params['reviews'] = reviews
+
+    cur.execute("""
+    SELECT
+        priority
+    FROM
+        user_preferences
+    WHERE
+        user_id = %s
+    AND review_sources_id = %s
+    """, (login.current_user.data["user_id"], source_data['id']))
+    preferences = cur.fetchone()
+    if preferences:
+        params['original_priority'] = (preferences['priority'])
+    else:
+        params['original_priority'] = 1.0
+
+    # Modify the behavior of inc/review.html linking
+    params['product_page'] = False
+    params['source_page'] = True
+
+    return params
