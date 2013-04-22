@@ -31,11 +31,10 @@ $(function() {
     var fill = d3.scale.category20();
 
     d3.layout.cloud().size([470, 250])
-        .words(
-        $("#tagvis").html().split(',').map(function(d,index) {
+        .words($("#tagvis").attr("tags").split(',').map(function(d,index) {
                     return {text: d, size: (2.5-Math.atan(index))*27};
                 }))
-        .rotate(function() { return (Math.random()*2-1)*0; })
+        .rotate(function() { return (Math.random()*2-1)*5; })
         .font("Impact")
         .fontSize(function(d) { return d.size; })
         .on("end", draw)

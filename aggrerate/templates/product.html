@@ -24,8 +24,7 @@
         <!-- Second column -->
         {% if tags %}
         <div class="product_tags span6">
-            <h3>Tags</h3>
-            <div id="tagvis">{{ tags }}</div>
+            <div id="tagvis" tags="{{ tags }}"></div>
         </div>
         {% endif %}
 
