@@ -834,7 +834,7 @@ def execute_search():
     """
     if query_words:
         query_sql += "WHERE\n "
-        query_sql += ' AND '.join(["(products.name REGEXP %s)"]*len(query_words))
+        query_sql += ' AND '.join(["(CONCAT_WS(' ', manufacturers.name, products.name) REGEXP %s)"]*len(query_words))
     query_sql += """
     GROUP BY
         products.id
