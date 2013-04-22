@@ -4,7 +4,7 @@
     <h3>Recent Reviews</h3>
     {% for r in reviews %}
     <div class="review well">
-        <h4 class="product_name">{{ r.manufacturer_name }} {{ r.product_name }}</h4>
+        <h4 class="product_name">{{ r.manufacturer_name }} <a href="{{url_for('product', product_id=r.product_id)}}">{{ r.product_name }}</a></h4>
         <span class="stars">{{ r.review_score }}</span>
         <span class="review_date pretty-date">{{ r.review_date }} +00:00</span>
         <div><a href="{{ url_for('user_profile', username=r.user_name) }}">{{ r.full_name }}</a> wrote:</div>

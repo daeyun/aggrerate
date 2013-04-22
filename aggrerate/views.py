@@ -24,13 +24,14 @@ def main():
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
-        users.name AS user_name,
-        users.full_name AS full_name,
-        reviews.date AS review_date,
-        reviews.score AS review_score,
-        reviews.body_text AS text,
-        products.name AS product_name,
-        manufacturers.name AS manufacturer_name
+        users.name          AS user_name,
+        users.full_name     AS full_name,
+        reviews.date        AS review_date,
+        reviews.score       AS review_score,
+        reviews.body_text   AS text,
+        products.name       AS product_name,
+        manufacturers.name  AS manufacturer_name,
+        products.id         AS product_id
     FROM
         reviews
     INNER JOIN users
