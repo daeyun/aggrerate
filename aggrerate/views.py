@@ -401,6 +401,9 @@ def edit_product(product_id):
         """, (product_id,)
         )
         params['product'] = cur.fetchone()
+        if not params['product']:
+            flask.abort(404)
+
         params['manufacturers'] = util.get_manufacturers(cur)
         params['categories'] = util.get_product_categories(cur)
         return render_template('product_edit.html', **params)
@@ -409,6 +412,22 @@ def edit_product(product_id):
     if request.form.has_key('cancel'):
         flask.flash('Changes canceled', 'info')
         return flask.redirect(flask.url_for('product', product_id=product_id))
+
+    if request.form.has_key('delete'):
+        deleted = cur.execute("""
+        DELETE FROM
+            products
+        WHERE
+            id = %s
+        """, (product_id,))
+        db.commit()
+
+        if deleted:
+            flask.flash('Product deleted', 'success')
+            return flask.redirect(flask.url_for('products_list'))
+        else:
+            flask.flash('Failed to delete product', 'error')
+            return flask.redirect(flask.url_for('edit_product', product_id=product_id))
 
     # Prepare form values
     product_name = request.form['product_name']
