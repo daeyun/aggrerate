@@ -21,4 +21,44 @@ $(function() {
             $.post($form.attr('action'), $form.serialize());
         });
     });
+
+
+
+
+
+
+
+    var fill = d3.scale.category20();
+
+    d3.layout.cloud().size([470, 250])
+        .words(
+        $("#tagvis").html().split(',').map(function(d,index) {
+                    return {text: d, size: (2.5-Math.atan(index))*27};
+                }))
+        .rotate(function() { return (Math.random()*2-1)*0; })
+        .font("Impact")
+        .fontSize(function(d) { return d.size; })
+        .on("end", draw)
+        .start();
+
+    function draw(words) {
+        d3.select("#tagvis").append("svg")
+            .attr("width", 470)
+            .attr("height", 250)
+            .append("g")
+            .attr("transform", "translate(235,125)")
+            .selectAll("text")
+            .data(words)
+            .enter().append("text")
+            .style("font-size", function(d) { return d.size + "px"; })
+            .style("font-family", "Impact")
+            .style("fill", function(d, i) { return fill(i); })
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+        .text(function(d) { return d.text; });
+    }
+
+    
 });

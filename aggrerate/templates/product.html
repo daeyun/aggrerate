@@ -21,6 +21,13 @@
         </div>
 
         <!-- Second column -->
+        {% if tags %}
+        <div class="product_tags span6">
+            <h3>Tags</h3>
+            <div id="tagvis">{{ tags }}</div>
+        </div>
+        {% endif %}
+
         <div class="user_reviews span6">
             <h3>User Reviews</h3>
             {% for review in user_reviews %}

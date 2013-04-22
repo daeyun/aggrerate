@@ -583,6 +583,19 @@ def product(product_id=None):
     """, (product_id,))
     params['user_reviews'] = cur.fetchall()
 
+    # Find tags
+    cur.execute("""
+    SELECT
+        tags
+    FROM
+        product_tags
+    WHERE
+        product_id = %s
+    """, (product_id,))
+    product_tags = cur.fetchall()
+    if len(product_tags) > 0:
+        params['tags'] = product_tags[0]['tags']
+
     # Modify the behavior of inc/review.html linking
     params['product_page'] = True
     params['source_page'] = False
