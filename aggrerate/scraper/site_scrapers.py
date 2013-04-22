@@ -73,11 +73,6 @@ class GdgtScraper(ReviewScraper):
         try:
             self.score = \
                 float(self.soup.find(class_="new-gdgt-score").text) / 10
-            self.blurb = \
-                ' '.join(itertools.chain(
-                    self.soup.find(class_="gdgt-says").h2.stripped_strings))
-            self.body = \
-                util.strip_tags(str(self.soup.find(class_="gdgt-says")))
 
             # There is no publish date for gdgt, but it is a composite score
             # anyways. We consider the composite score to be valid on the date
@@ -85,6 +80,13 @@ class GdgtScraper(ReviewScraper):
             self.timestamp = \
                 sorted(map(lambda t: datetime.strptime(t.contents[2].strip(), "%b %d, %Y").strftime("%Y-%m-%d"),
                     self.soup.find(id='critic-reviews-stream').find_all('header')))[-1]
+
+            # Sometimes they don't have a blurb, so let this fail last
+            self.body = \
+                util.strip_tags(str(self.soup.find(class_="gdgt-says")))
+            self.blurb = \
+                ' '.join(itertools.chain(
+                    self.soup.find(class_="gdgt-says").h2.stripped_strings))
         except:
             print "Unable to find score on given page"
 
@@ -114,8 +116,6 @@ class PCMagScraper(ReviewScraper):
                 datetime.strptime(self.soup.find(class_="dtreviewed").text.strip(),
                     "%B %d, %Y").strftime("%Y-%m-%d")
         except:
-            import sys
-            print sys.exc_info()[0]
             print "Unable to find score on given page"
 
 @register_scraper

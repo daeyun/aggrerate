@@ -686,7 +686,7 @@ def scrape():
             %s,
             %s
         )
-    """, (scraper.__class__.pretty_site_name, request.form['url'], scraper.blurb)
+    """, (scraper.__class__.pretty_site_name, request.form['url'], scraper.blurb or '')
     )
     db.commit()
 
