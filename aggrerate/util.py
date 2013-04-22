@@ -24,9 +24,9 @@ def templated(template=None):
     return decorator
 
 def get_db():
-    return mdb.connect(host='localhost',
-        user='root',
-        passwd='sdsdd',
+    return mdb.connect(host='ec2-174-129-96-104.compute-1.amazonaws.com',
+        user='jeff',
+        passwd='jeff',
         db='aggrerate',
         charset='utf8'
     )
