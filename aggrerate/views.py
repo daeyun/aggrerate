@@ -228,12 +228,17 @@ def signup():
 
 @app.route('/attemptSignup', methods=["POST"])
 def attemptSignup():
-    if not ('username' in request.form.keys() and 'password' in request.form.keys() and request.form['username'] and request.form['password']):
+    if not ('username' in request.form.keys() and
+            'password' in request.form.keys() and
+            'fullname' in request.form.keys() and
+            request.form['username'] and request.form['password'] and request.form['fullname']):
         return flask.redirect(flask.url_for('signup', retry=True))
     # It's time to add the user's new username and password to the table
-    if loginCode.addUser(request.form['username'], request.form['password']):
+    if loginCode.addUser(request.form['username'], request.form['password'], request.form['fullname']):
+        flask.flash("Welcome %s. You can log in now." % request.form['fullname'], "info")
         return flask.redirect(flask.url_for('loginPage'))
     else:
+        flask.flash("%s already exists in our database" % request.form['username'], "error")
         return flask.redirect(flask.url_for('signup', retry=True))
 
 @app.route("/products/")
