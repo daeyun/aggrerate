@@ -955,6 +955,59 @@ def attemptSource():
 def history():
     return
 
+@app.route('/history/get_results/<ts>/')
+@util.templated('ajax/history_results.html')
+def get_history_results(ts):
+    params = cookie_params(request)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute("""
+    SELECT
+        products.id AS id,
+        products.name AS name,
+        manufacturers.name AS manufacturer,
+        product_categories.id AS category_id,
+        product_categories.name AS category,
+        COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
+        metascore_with_date(%s,products.id,%s) AS avg_score,
+        COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
+        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
+    FROM
+        products
+    INNER JOIN product_categories
+        ON (products.category_id = product_categories.id)
+    INNER JOIN manufacturers
+        ON (products.manufacturer_id = manufacturers.id)
+    LEFT JOIN (reviews, scraped_reviews)
+        ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+    LEFT JOIN (reviews AS reviews_u, user_reviews)
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+    GROUP BY
+        products.id
+    HAVING
+        avg_score > 0
+    ORDER BY
+        avg_score DESC,
+        products.name ASC
+    """, (login.current_user.data["user_id"], ts))
+    params['products'] = cur.fetchall()
+    params['categories'] = util.get_product_categories()
+
+    cur.execute("""
+    SELECT
+        id,
+        name
+    FROM
+        manufacturers
+    """)
+    params['manufacturers'] = cur.fetchall()
+
+    params['has_categories'] = True
+    params['has_avg_scores'] = True
+
+    # Uncomment this to include average user scores in the products table
+    return params
+
 @app.route('/review/get_votes/<review_id>/')
 def get_review_votes(review_id):
     params = cookie_params(request)

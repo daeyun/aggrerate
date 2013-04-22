@@ -6,15 +6,16 @@
             <div class="results"></div>
         </div>
         <div class="span5">
-            <h3>Query</h3>
+            <h3>Timeline</h3>
             <form class="form-horizontal" action="/execute_history/" method="GET">
                 <div>
-                    <input type="range" name="date" min="1995" max="2013" value="2013">
+                    <input type="range" name="date" min="0" max="168" value="0">
                 </div>
+                <p><span class="spinner-date">Date</span></p>
             </form>
         </div>
     </div>
 {% endblock %}
 {% block scripts %}
-    <script type="text/javascript" src="/static/js/query_form.js"></script>
+    <script type="text/javascript" src="/static/js/timeline.js"></script>
 {% endblock %}
