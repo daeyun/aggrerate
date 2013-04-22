@@ -401,9 +401,6 @@ def edit_product(product_id):
         """, (product_id,)
         )
         params['product'] = cur.fetchone()
-        if not params['product']:
-            flask.abort(404)
-
         params['manufacturers'] = util.get_manufacturers(cur)
         params['categories'] = util.get_product_categories(cur)
         return render_template('product_edit.html', **params)
@@ -412,22 +409,6 @@ def edit_product(product_id):
     if request.form.has_key('cancel'):
         flask.flash('Changes canceled', 'info')
         return flask.redirect(flask.url_for('product', product_id=product_id))
-
-    if request.form.has_key('delete'):
-        deleted = cur.execute("""
-        DELETE FROM
-            products
-        WHERE
-            id = %s
-        """, (product_id,))
-        db.commit()
-
-        if deleted:
-            flask.flash('Product deleted', 'success')
-            return flask.redirect(flask.url_for('products_list'))
-        else:
-            flask.flash('Failed to delete product', 'error')
-            return flask.redirect(flask.url_for('edit_product', product_id=product_id))
 
     # Prepare form values
     product_name = request.form['product_name']
@@ -581,10 +562,6 @@ def product(product_id=None):
         product_id = %s
     """, (product_id,))
     params['user_reviews'] = cur.fetchall()
-
-    # Modify the behavior of inc/review.html linking
-    params['product_page'] = True
-    params['source_page'] = False
 
     return params
 
@@ -741,17 +718,193 @@ def get_specification_names():
     spec_names = map(lambda d: d['name'], cur.fetchall())
     return flask.jsonify({'spec_names': spec_names})
 
+def get_num(s):
+    retStr = ""
+    if s[:1] in '-+':
+        retStr += s[:1]
+        s = s[1:]
+    p_good = True
+    for c in s:
+        if c.isdigit():
+            retStr += c
+        elif c == '.' and p_good:
+            retStr += c
+            p_good = False
+        else:
+            break
+    if retStr:
+        return float(retStr)
+    else:
+        return 0
+
+def modify_score(baseScore, specification, requirement):
+    if specification:
+        print "BBBBB", baseScore, specification, requirement
+        if requirement[1].lower() in ["<", "less than"]:
+            if (specification["value_decimal"] and specification["value_decimal"] < float(requirement[2])):
+                return baseScore + 2
+            else:
+                return baseScore - 2
+        elif requirement[1].lower() in [">", "greater than"]:
+            if (specification["value_decimal"] and specification["value_decimal"] > float(requirement[2])):
+                return baseScore + 2
+            else:
+                return baseScore - 2
+        elif requirement[1].lower() in ["is", "="]:
+            
+            if (specification["value_decimal"] and abs(get_num(requirement[2]) - float(specification["value_decimal"])) < 0.01) or str(requirement[2]).lower() == specification["value"].lower():
+                return baseScore + 2
+            else:
+                return baseScore -2
+    else:
+        return baseScore-1
 @app.route('/execute_search/')
 @util.templated('ajax/query_response.html')
 def execute_search():
-    query = request.args.get('query', '')
+    params = cookie_params(request)
+    
+    query = request.args.get("query","")
+
+    query_words = query.split()
+    query_sql = \
+    """
+    SELECT
+        products.id AS id,
+        products.name AS name,
+        manufacturers.name AS manufacturer,
+        product_categories.id AS category_id,
+        product_categories.name AS category,
+        COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
+        metascore(%s,products.id) AS avg_score,
+        COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
+        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
+    FROM
+        products
+    INNER JOIN product_categories
+        ON (products.category_id = product_categories.id)
+    INNER JOIN manufacturers
+        ON (products.manufacturer_id = manufacturers.id)
+    LEFT JOIN (reviews, scraped_reviews)
+        ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
+    LEFT JOIN (reviews AS reviews_u, user_reviews)
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)"""
+    if query_words:
+        query_sql += "\n    WHERE\n        "
+        for i in range(len(query_words)-1):
+            query_sql += "(products.name REGEXP %s) AND "
+        query_sql += "(products.name REGEXP %s)\n"
+    query_sql += \
+    """GROUP BY
+        products.id
+    ORDER BY
+        avg_score DESC,
+        products.name ASC"""
+    
+    sql_elements = [login.current_user.data["user_id"]]
+    sql_elements.extend(query_words)
+    (db, cur) = util.get_dict_cursor()
+    cur.execute(query_sql, sql_elements)
+
+    params['products'] = []
+    params['products'].extend(cur.fetchall())
+    for i in params['products']:
+        if i["avg_score"]: i["avg_score"] = float(i["avg_score"])
+        if i["avg_user_score"]: i["avg_user_score"] = float(i["avg_user_score"])
+
+    #Unscored products start at an even 5
+    for product in params['products']:
+        if product["avg_score"]:
+            product["rec_score"] = product["avg_score"]
+        else:
+            product["rec_score"] = 5
 
     # Rebuild requirements list
     requirements = []
     for i in range(int(request.args.get('num_requirements'))):
         requirements.append(request.args.getlist('requirements[%s][]' % i))
+    
+    for requirement in requirements:
+        print "REQUIREMENT: ", requirement
+        cur.execute("""
+            SELECT
+                product_id,
+                name,
+                value,
+                value_decimal
+            FROM
+                specifications
+            WHERE
+                name = %s""", (requirement[0],))
+        raw_specs = cur.fetchall()
+        specs = {}
+        for s in raw_specs:
+            specs[s["product_id"]] = s
+        
+        for product in params['products']:
+            product["rec_score"] = modify_score(product["rec_score"], specs.get(int(product["id"])), requirement)
+            print "SCORE: ", product["rec_score"]
+    
+    params['products'] = sorted(params['products'], key=lambda x: -x.get("rec_score"))
 
-    return {'body': json.dumps({'query': query, 'requirements': requirements})}
+    params['has_categories'] = True
+    params['has_avg_scores'] = True
+    params['has_rec_scores'] = True
+
+    return params
+
+# Takes in the name of a source, and shows the
+# source's information
+@app.route('/source/<review_source_id>/')
+@util.templated('source.html')
+def source(review_source_id):
+
+    params = cookie_params(request)
+
+    # Returns a relation whose attributes have
+    # 1. Name of the source (ex: The Verge)
+    # 2. The URL of the source (ex: www.theverge.com)
+    (db, cur) = util.get_dict_cursor()
+    cur.execute("""
+    SELECT
+        name,
+        url
+    FROM
+        review_sources
+    WHERE
+        review_sources.id = %s
+    """, review_source_id)
+    source_data = cur.fetchall()
+    params['source_data'] = source_data
+
+    # Returns a relation that contains
+    # 1. A product name
+    # 2. The source's review for the product
+    # 3. URL to the review
+    cur.execute("""
+    SELECT
+        products.name           AS product_name,
+        manufacturers.name      AS manufacturer,
+        scraped_reviews.blurb   AS blurb,
+        scraped_reviews.url     AS url
+    FROM
+        scraped_reviews INNER JOIN reviews
+            ON scraped_reviews.review_id = reviews.id
+        INNER JOIN products
+            ON reviews.product_id = products.id
+        INNER JOIN manufacturers
+            ON products.manufacturer_id = manufacturers.id
+    WHERE
+        scraped_reviews.review_source_id = %s
+    """, review_source_id)
+    reviews = cur.fetchall()    # contains all of the reviews
+    params['reviews'] = reviews
+
+    return params
+
+@app.route('/attemptSource', methods=["POST"])
+def attemptSource():
+    # Put more lines of code down here
+    return
 
 @app.route('/history/')
 @util.templated('history.html')
@@ -886,87 +1039,3 @@ def delete_review_comment():
     db.commit()
 
     return flask.jsonify({'deleted': deleted})
-
-
-# Takes in the name of a source, and shows the
-# source's information
-@app.route('/source/<review_source_id>/')
-@util.templated('source.html')
-def source(review_source_id):
-    params = cookie_params(request)
-
-    if params["username"] != "anonymous":
-        params['active_user'] = True
-    else:
-        params['active_user'] = False
-
-    # Returns a relation whose attributes have
-    # 1. Name of the source (ex: The Verge)
-    # 2. The URL of the source (ex: www.theverge.com)
-    (db, cur) = util.get_dict_cursor()
-    cur.execute("""
-    SELECT
-        id,
-        name,
-        url
-    FROM
-        review_sources
-    WHERE
-        review_sources.id = %s
-    """, review_source_id)
-    source_data = cur.fetchone()
-    if not source_data:
-        flask.abort(404)
-    params['source_data'] = source_data
-
-    # Returns a relation that contains
-    # 1. A product name
-    # 2. The source's review for the product
-    # 3. URL to the review
-    cur.execute("""
-    SELECT
-        reviews.id              AS id,
-        reviews.date            AS date,
-        reviews.score           AS score,
-        scraped_reviews.blurb   AS blurb,
-        scraped_reviews.url     AS url,
-        review_sources.name     AS source_name,
-        products.id             AS product_id,
-        products.name           AS product_name,
-        manufacturers.name      AS manufacturer
-    FROM
-        scraped_reviews
-    INNER JOIN reviews
-        ON scraped_reviews.review_id = reviews.id
-    INNER JOIN review_sources
-        ON scraped_reviews.review_source_id = review_sources.id
-    INNER JOIN products
-        ON reviews.product_id = products.id
-    INNER JOIN manufacturers
-        ON products.manufacturer_id = manufacturers.id
-    WHERE
-        scraped_reviews.review_source_id = %s
-    """, review_source_id)
-    reviews = cur.fetchall()    # contains all of the reviews
-    params['reviews'] = reviews
-
-    cur.execute("""
-    SELECT
-        priority
-    FROM
-        user_preferences
-    WHERE
-        user_id = %s
-    AND review_sources_id = %s
-    """, (login.current_user.data["user_id"], source_data['id']))
-    preferences = cur.fetchone()
-    if preferences:
-        params['original_priority'] = (preferences['priority'])
-    else:
-        params['original_priority'] = 1.0
-
-    # Modify the behavior of inc/review.html linking
-    params['product_page'] = False
-    params['source_page'] = True
-
-    return params
