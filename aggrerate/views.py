@@ -249,7 +249,7 @@ def products_list():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
@@ -512,7 +512,7 @@ def product(product_id=None):
         products.id AS id,
         products.name AS name,
         product_categories.name AS category,
-        metascore(%s,products.id) as avg_score
+        metascore_with_date(%s,products.id,NOW()) AS avg_score
     FROM
         products
     INNER JOIN product_categories
@@ -695,7 +695,7 @@ def product_category(category_id):
         products.name AS name,
         manufacturers.name AS manufacturer,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS avg_score,
         CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
@@ -800,7 +800,7 @@ def execute_search():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM

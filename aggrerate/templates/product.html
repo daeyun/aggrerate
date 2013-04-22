@@ -7,14 +7,15 @@
 
         <!-- First column -->
         <div class="scraped_reviews span6">
-            <h3>Scraped Reviews </h3>
-            <div class="metascore">
-            {% if current_user() %}
-                <h4>Your calculated metascore: {{ product.avg_score }}</h4>
-            {% else %}
-                <h4>Average score: {{ product.avg_score }}</h4>
-            {% endif %}
-            </div>
+            <h3>Scraped Reviews
+                <small class="metascore">
+                {% if current_user() %}
+                    Your calculated metascore: {{ product.avg_score }}
+                {% else %}
+                    Average score: {{ product.avg_score }}
+                {% endif %}
+                </small>
+            </h3>
             {% for review in scraped_reviews %}
                 {% include "inc/scraped_review.html" %}
             {% endfor %}

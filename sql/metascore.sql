@@ -1,4 +1,5 @@
 delimiter //
+DROP FUNCTION IF EXISTS metascore//
 CREATE FUNCTION metascore(uid int(11), pid int(11))
 RETURNS decimal(9, 1)
 BEGIN

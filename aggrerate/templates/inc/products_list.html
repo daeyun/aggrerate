@@ -15,9 +15,6 @@
         {% if has_avg_user_scores %}
             <th>Average user score</th>
         {% endif %}
-        {% if has_rec_scores %}
-            <th>Recommendation score</th>
-        {% endif %}
     </tr>
     {% for product in products %}
     <tr>
@@ -29,10 +26,14 @@
         {% if has_avg_scores %}
             <td>
                 {%- if product.avg_score != None -%}
-                    {{- product.avg_score }}
-                        {% if product.scraped_reviews_count %}
-                            <span class="muted">&mdash; {{ product.scraped_reviews_count }} ratings</span>
-                        {% endif %}
+                    {% if has_rec_scores %}
+                        <span title="{{ product.rec_score }}">{{ product.avg_score }}</span>
+                    {% else %}
+                        {{ product.avg_score }}
+                    {% endif %}
+                    {% if product.scraped_reviews_count %}
+                        <span class="muted">&mdash; {{ product.scraped_reviews_count }} ratings</span>
+                    {% endif %}
                 {%- else -%}
                     <span class="muted">No ratings</span>
                 {% endif %}
@@ -57,11 +58,6 @@
                 {%- else -%}
                     <span class="muted">No ratings</span>
                 {% endif %}
-            </td>
-        {% endif %}
-        {% if has_rec_scores %}
-            <td>
-                {{- product.rec_score }}
             </td>
         {% endif %}
     </tr>
