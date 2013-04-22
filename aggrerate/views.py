@@ -275,16 +275,9 @@ def products_list():
         products.name ASC
     """, (login.current_user.data["user_id"],))
     params['products'] = cur.fetchall()
-    params['categories'] = util.get_product_categories()
 
-    cur.execute("""
-    SELECT
-        id,
-        name
-    FROM
-        manufacturers
-    """)
-    params['manufacturers'] = cur.fetchall()
+    params['categories'] = util.get_product_categories()
+    params['manufacturers'] = util.get_manufacturers()
 
     params['has_categories'] = True
     params['has_avg_scores'] = True

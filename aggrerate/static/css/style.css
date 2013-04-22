@@ -177,3 +177,6 @@ form.query-builder div.query-build-wrap div.query-input-parent input {
 table form {
     margin: 0;
 }
+legend {
+    margin-bottom: 10px;
+}

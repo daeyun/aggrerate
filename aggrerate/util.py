@@ -47,6 +47,8 @@ def get_product_categories(cur=None):
         name
     FROM
         product_categories
+    ORDER BY
+        id
     """)
     return cur.fetchall()
 
@@ -60,6 +62,8 @@ def get_manufacturers(cur=None):
         name
     FROM
         manufacturers
+    ORDER BY
+        name
     """)
     return cur.fetchall()
 
