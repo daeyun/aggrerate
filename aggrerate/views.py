@@ -791,8 +791,7 @@ def execute_search():
     query = request.args.get("query","")
 
     query_words = query.split()
-    query_sql = \
-    """
+    query_sql = """
     SELECT
         products.id AS id,
         products.name AS name,
@@ -812,21 +811,22 @@ def execute_search():
     LEFT JOIN (reviews, scraped_reviews)
         ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
     LEFT JOIN (reviews AS reviews_u, user_reviews)
-        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)"""
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+    """
     if query_words:
-        query_sql += "\n    WHERE\n        "
-        for i in range(len(query_words)-1):
-            query_sql += "(products.name REGEXP %s) AND "
-        query_sql += "(products.name REGEXP %s)\n"
-    query_sql += \
-    """GROUP BY
+        query_sql += "WHERE\n "
+        query_sql += ' AND '.join(["(products.name REGEXP %s)"]*len(query_words))
+    query_sql += """
+    GROUP BY
         products.id
     ORDER BY
         avg_score DESC,
-        products.name ASC"""
+        products.name ASC
+    """
     
     sql_elements = [login.current_user.data["user_id"]]
     sql_elements.extend(query_words)
+
     (db, cur) = util.get_dict_cursor()
     cur.execute(query_sql, sql_elements)
 
@@ -836,7 +836,7 @@ def execute_search():
         if i["avg_score"]: i["avg_score"] = float(i["avg_score"])
         if i["avg_user_score"]: i["avg_user_score"] = float(i["avg_user_score"])
 
-    #Unscored products start at an even 5
+    # Unscored products start at an even 5
     for product in params['products']:
         if product["avg_score"]:
             product["rec_score"] = product["avg_score"]
