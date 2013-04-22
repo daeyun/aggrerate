@@ -56,8 +56,38 @@
                     <input type="hidden" name="product_id" value="{{ product.id }}">
                 </fieldset>
             </form>
+        </div>
 
-            {% if specs %}
+        {% if current_user() %}
+            <div class="span6">
+                <form name="f2" action="{{ url_for('post_product_review', product_id=product.id) }}" method="post" class="form-horizontal">
+                    <fieldset>
+                        <legend>Write a review</legend>
+
+                        <div class="control-group">
+                            <label for="score" class="control-label">Score</label>
+                            <div class="controls">
+                                <input name="score" type="number" min="0" max="10" step="1" value="10" class="input-mini">
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="reviewText" class="control-label">Review</label>
+                            <div class="controls">
+                                <textarea name="reviewText" rows="20" class="input-xlarge"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn">Post</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if specs %}
+            <div class="span6">
                 <table class="table">
                     <tr>
                         <th>Name</th>
@@ -70,34 +100,8 @@
                         </tr>
                     {% endfor %}
                 </table>
-            {% endif %}
-        </div>
-
-        <div class="span6">
-            <form name="f2" action="{{ url_for('post_product_review', product_id=product.id) }}" method="post" class="form-horizontal">
-                <fieldset>
-                    <legend>Write a review</legend>
-
-                    <div class="control-group">
-                        <label for="score" class="control-label">Score</label>
-                        <div class="controls">
-                            <input name="score" type="number" min="0" max="10" step="1" value="10" class="input-mini">
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="reviewText" class="control-label">Review</label>
-                        <div class="controls">
-                            <textarea name="reviewText" rows="20" class="input-xlarge"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn">Post</button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
