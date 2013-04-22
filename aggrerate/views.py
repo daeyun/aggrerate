@@ -24,13 +24,14 @@ def main():
     (db, cur) = util.get_dict_cursor()
     cur.execute("""
     SELECT
-        users.name AS user_name,
-        users.full_name AS full_name,
-        reviews.date AS review_date,
-        reviews.score AS review_score,
-        reviews.body_text AS text,
-        products.name AS product_name,
-        manufacturers.name AS manufacturer_name
+        users.name          AS user_name,
+        users.full_name     AS full_name,
+        reviews.date        AS review_date,
+        reviews.score       AS review_score,
+        reviews.body_text   AS text,
+        products.name       AS product_name,
+        manufacturers.name  AS manufacturer_name,
+        products.id         AS product_id
     FROM
         reviews
     INNER JOIN users
@@ -249,7 +250,7 @@ def products_list():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
@@ -512,7 +513,7 @@ def product(product_id=None):
         products.id AS id,
         products.name AS name,
         product_categories.name AS category,
-        metascore(%s,products.id) as avg_score
+        metascore_with_date(%s,products.id,NOW()) AS avg_score
     FROM
         products
     INNER JOIN product_categories
@@ -708,7 +709,7 @@ def product_category(category_id):
         products.name AS name,
         manufacturers.name AS manufacturer,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS avg_score,
         CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
@@ -804,8 +805,7 @@ def execute_search():
     query = request.args.get("query","")
 
     query_words = query.split()
-    query_sql = \
-    """
+    query_sql = """
     SELECT
         products.id AS id,
         products.name AS name,
@@ -813,7 +813,7 @@ def execute_search():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
@@ -825,21 +825,22 @@ def execute_search():
     LEFT JOIN (reviews, scraped_reviews)
         ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
     LEFT JOIN (reviews AS reviews_u, user_reviews)
-        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)"""
+        ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+    """
     if query_words:
-        query_sql += "\n    WHERE\n        "
-        for i in range(len(query_words)-1):
-            query_sql += "(products.name REGEXP %s) AND "
-        query_sql += "(products.name REGEXP %s)\n"
-    query_sql += \
-    """GROUP BY
+        query_sql += "WHERE\n "
+        query_sql += ' AND '.join(["(products.name REGEXP %s)"]*len(query_words))
+    query_sql += """
+    GROUP BY
         products.id
     ORDER BY
         avg_score DESC,
-        products.name ASC"""
+        products.name ASC
+    """
     
     sql_elements = [login.current_user.data["user_id"]]
     sql_elements.extend(query_words)
+
     (db, cur) = util.get_dict_cursor()
     cur.execute(query_sql, sql_elements)
 
@@ -849,7 +850,7 @@ def execute_search():
         if i["avg_score"]: i["avg_score"] = float(i["avg_score"])
         if i["avg_user_score"]: i["avg_user_score"] = float(i["avg_user_score"])
 
-    #Unscored products start at an even 5
+    # Unscored products start at an even 5
     for product in params['products']:
         if product["avg_score"]:
             product["rec_score"] = product["avg_score"]

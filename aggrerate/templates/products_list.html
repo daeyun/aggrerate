@@ -29,7 +29,7 @@
 	<div class="span7">
 		<form name="f1" action="{{ url_for('add_product') }}" method="post" class="form-horizontal">
 			<fieldset>
-				<legend>Add a product</legend>
+				<legend>Add a product <sup><a href="#fn1" id="ref1">1</a></sup></legend> 
 
 				<div class="control-group">
 					<label for="product_name" class="control-label">Name</label>
@@ -77,4 +77,6 @@
 		</form>
 	</div>
 </div>
+
+<sup id="fn1">1. Our scraper currently only supports specification pages from The Verge.<a href="#ref1" title="Jump back to footnote 1 in the text.">↩</a></sup>
 {% endblock %}
