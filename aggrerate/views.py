@@ -540,19 +540,29 @@ def product(product_id=None):
         score,
         blurb,
         review_sources.id AS review_source_id,
-        review_sources.name AS source_name
+        review_sources.name AS source_name,
+        COALESCE(SUM(votes.value), 0) AS sum
     FROM
         reviews
     INNER JOIN scraped_reviews
-    INNER JOIN review_sources
     ON
         reviews.id = scraped_reviews.review_id
+    INNER JOIN review_sources
+    ON
+        scraped_reviews.review_source_id = review_sources.id
+    LEFT JOIN votes
+    ON
+        reviews.id = votes.review_id
     AND scraped_reviews.review_source_id = review_sources.id
     WHERE
         product_id = %s
+    GROUP BY
+        reviews.id
+    ORDER BY
+        sum DESC,
+        reviews.score DESC
     """, (product_id,))
     params['scraped_reviews'] = cur.fetchall()
-
 
     # Find the product user reviews
     cur.execute("""
@@ -563,16 +573,26 @@ def product(product_id=None):
         body_text,
         users.id AS user_id,
         users.name AS username,
-        users.full_name AS full_name
+        users.full_name AS full_name,
+        COALESCE(SUM(votes.value), 0) AS sum
     FROM
         reviews
     INNER JOIN user_reviews
-    INNER JOIN users
     ON
         reviews.id = user_reviews.review_id
-    AND user_reviews.user_id = users.id
+    INNER JOIN users
+    ON
+        user_reviews.user_id = users.id
+    LEFT JOIN votes
+    ON
+        reviews.id = votes.review_id
     WHERE
         product_id = %s
+    GROUP BY
+        reviews.id
+    ORDER BY
+        sum DESC,
+        reviews.score DESC
     """, (product_id,))
     params['user_reviews'] = cur.fetchall()
 
