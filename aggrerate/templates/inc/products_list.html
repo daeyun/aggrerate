@@ -7,13 +7,13 @@
             <th>Category</th>
         {% endif %}
         {% if has_avg_scores %}
-            <th>Average score</th>
+            <th width="130">Average score</th>
         {% endif %}
         {% if has_stddev %}
-            <th>Standard deviation</th>
+            <th width="60">Standard deviation</th>
         {% endif %}
         {% if has_avg_user_scores %}
-            <th>Average user score</th>
+            <th width="140">Average user score</th>
         {% endif %}
     </tr>
     {% for product in products %}
@@ -49,7 +49,7 @@
             </td>
         {% endif %}
         {% if has_avg_user_scores %}
-            <td>
+            <td width="100">
                 {%- if product.avg_user_score != None -%}
                     {{- product.avg_user_score }}
                         {% if product.user_reviews_count %}

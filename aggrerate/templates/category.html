@@ -1,19 +1,23 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div class="row">
-        <div class="span8">
+    <div class="row category-view">
+        <div class="products-list">
             <h2>{{ category }}</h2>
             {% include "inc/products_list.html" %}
         </div>
-        <div class="span4">
-            <h3>Other categories</h3>
-            <ul>
-                {% for category_iter in categories %}
-                    {% if category_iter.name != category %}
-                        <li><a href="{{ url_for('product_category', category_id=category_iter.id) }}">{{ category_iter.name }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+        <div class="sidebar">
+
+            <div class="well categories">
+                <ul class="nav nav-list">
+                    <li class="nav-header">Product Categories</li>
+                    <li><a href="{{ url_for('products_list') }}">All</a></li>
+                    {% for category_iter in categories %}
+                        
+                    <li{% if category_iter.name == category %} class="active"{% endif %}><a href="{{ url_for('product_category', category_id=category_iter.id) }}">{{ category_iter.name }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            </div>
         </div>
     </div>
 {% endblock %}
