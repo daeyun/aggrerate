@@ -216,3 +216,6 @@ table form {
 legend {
     margin-bottom: 10px;
 }
+.thin {
+    font-weight: normal;
+}

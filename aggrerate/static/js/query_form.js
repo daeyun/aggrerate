@@ -37,6 +37,7 @@ $(function() {
 
             $.get($form.attr('action'), request_data, function(data) {
                 $('.results').html(data);
+                render_tags($("#tagvis").attr("tags"));
             });
         });
 

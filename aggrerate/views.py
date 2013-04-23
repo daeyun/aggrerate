@@ -910,6 +910,21 @@ def execute_search():
         elif product['rec_state'] == (1, 1):
             pass
 
+    # Find tags
+    if len(params['products']) > 0:
+        cur.execute("""
+        SELECT
+            tags
+        FROM
+            product_tags
+        WHERE
+            product_id = %s
+        """, (params['products'][0]['id'],))
+        product_tags = cur.fetchall()
+        if len(product_tags) > 0:
+            params['tags'] = product_tags[0]['tags']
+            print params['tags']
+
     params['has_categories'] = True
     params['has_avg_scores'] = True
     params['has_rec_scores'] = True

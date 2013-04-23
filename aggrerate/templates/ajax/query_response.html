@@ -1,1 +1,17 @@
-{% include "inc/products_list.html" %} 
+{% if products[0] %}
+    {% set our_pick = products[0] %}
+    <h2><span class="muted thin">Our pick:</span> <a href="{{ url_for('product', product_id=our_pick.id) }}">{{ our_pick.name }}</a></h2>
+        {% if tags %}
+            <div class="product_tags">
+                <div id="tagvis" tags="{{ tags }}"></div>
+            </div>
+        {% endif %}
+
+    {% set products = products[1:] %}
+    {% if products[0] %}
+        <h3>Alternatives</h3>
+        {% include "inc/products_list.html" %} 
+    {% endif %}
+{% else %}
+    <p>No products found</p>
+{% endif %}
