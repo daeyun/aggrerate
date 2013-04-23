@@ -17,7 +17,7 @@
         {% endif %}
     </tr>
     {% for product in products %}
-    <tr>
+    <tr class="{{ product.rec_class }}">
         <td>{{ product.manufacturer }}</td>
         <td><a class="product_name" href="{{ url_for('product', product_id=product.id) }}">{{ product.name }}</a></td>
         {% if has_categories %}

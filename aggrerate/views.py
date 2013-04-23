@@ -767,33 +767,32 @@ def get_num(s):
     else:
         return 0
 
-def modify_score(baseScore, specification, requirement):
+def modify_score(baseScore, baseState, specification, requirement):
     if specification:
-        print "BBBBB", baseScore, specification, requirement
+        print "BBBBB", baseScore, baseState, specification, requirement
         if requirement[1].lower() in ["<", "less than"]:
-            if (specification["value_decimal"] and specification["value_decimal"] < float(requirement[2])):
-                return baseScore + 2
+            if (specification["value_decimal"] and specification["value_decimal"] < get_num(requirement[2])):
+                return (baseScore + 2, (baseState[0], 0))
             else:
-                return baseScore - 2
+                return (baseScore - 2, (0, baseState[1]))
         elif requirement[1].lower() in [">", "greater than"]:
-            if (specification["value_decimal"] and specification["value_decimal"] > float(requirement[2])):
-                return baseScore + 2
+            if (specification["value_decimal"] and specification["value_decimal"] > get_num(requirement[2])):
+                return (baseScore + 2, (baseState[0], 0))
             else:
-                return baseScore - 2
+                return (baseScore - 2, (0, baseState[1]))
         elif requirement[1].lower() in ["is", "="]:
-            
             if (specification["value_decimal"] and abs(get_num(requirement[2]) - float(specification["value_decimal"])) < 0.01) or str(requirement[2]).lower() == specification["value"].lower():
-                return baseScore + 2
+                return (baseScore + 2, (baseState[0], 0))
             else:
-                return baseScore -2
+                return (baseScore - 2, (0, baseState[1]))
     else:
-        return baseScore-1
+        return (baseScore-1, (0, baseState[1]))
 
 @app.route('/execute_search/')
 @util.templated('ajax/query_response.html')
 def execute_search():
     params = cookie_params(request)
-    
+
     query = request.args.get("query","")
 
     query_words = query.split()
@@ -821,7 +820,9 @@ def execute_search():
     """
     if query_words:
         query_sql += "WHERE\n "
-        query_sql += ' AND '.join(["(CONCAT_WS(' ', manufacturers.name, products.name) REGEXP %s)"]*len(query_words))
+        query_sql += ' AND '.join(
+            ["(CONCAT_WS(' ', manufacturers.name, products.name, product_categories.name) REGEXP %s)"]*len(query_words)
+        )
     query_sql += """
     GROUP BY
         products.id
@@ -829,7 +830,7 @@ def execute_search():
         avg_score DESC,
         products.name ASC
     """
-    
+
     sql_elements = [login.current_user.data["user_id"]]
     sql_elements.extend(query_words)
 
@@ -844,16 +845,14 @@ def execute_search():
 
     # Unscored products start at an even 5
     for product in params['products']:
-        if product["avg_score"]:
-            product["rec_score"] = product["avg_score"]
-        else:
-            product["rec_score"] = 5
+        product["rec_score"] = product["avg_score"] or 5
+        product["rec_state"] = (1, 1) # (All recs pass, all recs fail)
 
     # Rebuild requirements list
     requirements = []
     for i in range(int(request.args.get('num_requirements'))):
         requirements.append(request.args.getlist('requirements[%s][]' % i))
-    
+
     for requirement in requirements:
         print "REQUIREMENT: ", requirement
         cur.execute("""
@@ -868,14 +867,27 @@ def execute_search():
                 name = %s""", (requirement[0],))
         raw_specs = cur.fetchall()
         specs = {}
+
         for s in raw_specs:
             specs[s["product_id"]] = s
-        
+
         for product in params['products']:
-            product["rec_score"] = modify_score(product["rec_score"], specs.get(int(product["id"])), requirement)
-            print "SCORE: ", product["rec_score"]
-    
+            (product["rec_score"], product["rec_state"]) = \
+                modify_score(product["rec_score"], product["rec_state"], specs.get(int(product["id"])), requirement)
+            print "SCORE:", product["rec_score"], "STATE:", product["rec_state"]
+
     params['products'] = sorted(params['products'], key=lambda x: -x.get("rec_score"))
+    for product in params['products']:
+        if product['rec_state'] == (1, 0):
+            # All the requirements passed
+            product['rec_class'] = 'success'
+        elif product['rec_state'] == (0, 1):
+            # All the requirements failed
+            product['rec_class'] = 'error'
+        elif product['rec_state'] == (0, 0):
+            pass
+        elif product['rec_state'] == (1, 1):
+            pass
 
     params['has_categories'] = True
     params['has_avg_scores'] = True

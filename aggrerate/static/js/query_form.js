@@ -103,5 +103,8 @@ $(function() {
 
         // Add the first field
         add_query_wrap();
+
+        // Load some data by default
+        ajax_submit();
     });
 });
