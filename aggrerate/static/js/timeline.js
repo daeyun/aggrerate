@@ -1,6 +1,7 @@
 $(function() {
-    var $date_span = $('span.spinner-date');
-    var $spinner   = $('input[name="date"]');
+    var $date_span  = $('span.spinner-date');
+    var $spinner    = $('input[name="date"]');
+    var $categories = $('select[name="category"]');
 
     var base_date = moment('2000-01-01');
 
@@ -14,17 +15,20 @@ $(function() {
     });
 
     var request;
-    var load_results = (function(ts) {
-        request = $.get('/history/get_results/' + ts + '/', function(data) {
+    var load_results = (function(ts, cat) {
+        request = $.get('/history/get_results/' + ts + '/', {'c': cat}, function(data) {
             $('.results').html(data);
         });
     });
 
-    $spinner.ready(function() {
-        var months = moment().diff(base_date, 'months');
-        $spinner.val(months);
-        load_results(update_spinner_date($spinner));
-    }).change(function(value) {
-        load_results(update_spinner_date($spinner));
+    var form_updated = (function() {
+        load_results(update_spinner_date($spinner), $categories.val());
     });
+
+    $spinner.ready(function() {
+        $spinner.val(moment().diff(base_date, 'months'));
+        load_results(update_spinner_date($spinner), 'all');
+    }).change(form_updated);
+
+    $categories.change(form_updated);
 });

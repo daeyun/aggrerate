@@ -6,12 +6,20 @@
             <div class="results"></div>
         </div>
         <div class="span5">
-            <h3>Timeline</h3>
             <form class="form-horizontal" action="/execute_history/" method="GET">
-                <div>
+                <legend>Scroll through time</legend>
+                <div class="control-group">
                     <input type="range" name="date" min="0" max="168" value="0">
+                    <p><span class="spinner-date">Date</span></p>
                 </div>
-                <p><span class="spinner-date">Date</span></p>
+                <div class="control-group">
+                    <select name="category">
+                        <option value="all">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </form>
         </div>
     </div>

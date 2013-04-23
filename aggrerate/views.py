@@ -946,15 +946,16 @@ def attemptSource():
 @app.route('/history/')
 @util.templated('history.html')
 def history():
-    return
+    params = cookie_params(request)
+    params['categories'] = util.get_product_categories()
+    return params
 
 @app.route('/history/get_results/<ts>/')
 @util.templated('ajax/history_results.html')
 def get_history_results(ts):
     params = cookie_params(request)
 
-    (db, cur) = util.get_dict_cursor(None)
-    cur.execute("""
+    query = """
     SELECT
         products.id AS id,
         products.name AS name,
@@ -975,6 +976,15 @@ def get_history_results(ts):
         ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
     LEFT JOIN (reviews AS reviews_u, user_reviews)
         ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+    """
+    
+    if request.args.get('c') != 'all':
+        query += """
+        WHERE
+            products.category_id = %s
+        """
+
+    query += """
     GROUP BY
         products.id
     HAVING
@@ -982,18 +992,16 @@ def get_history_results(ts):
     ORDER BY
         avg_score DESC,
         products.name ASC
-    """, (login.current_user.data["user_id"], ts))
+    """
+
+    sql_args = (login.current_user.data["user_id"], ts)
+    if request.args.get('c') != 'all':
+        sql_args += (request.args.get('c'),)
+
+    (db, cur) = util.get_dict_cursor(None)
+    cur.execute(query, sql_args)
     params['products'] = cur.fetchall()
     params['categories'] = util.get_product_categories()
-
-    cur.execute("""
-    SELECT
-        id,
-        name
-    FROM
-        manufacturers
-    """)
-    params['manufacturers'] = cur.fetchall()
 
     params['has_categories'] = True
     params['has_avg_scores'] = True
