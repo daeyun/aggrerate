@@ -899,18 +899,20 @@ def execute_search():
                 modify_score(product["rec_score"], product["rec_state"], specs.get(int(product["id"])), requirement)
             print "SCORE:", product["rec_score"], "STATE:", product["rec_state"]
 
-    params['products'] = sorted(params['products'], key=lambda x: -x.get("rec_score"))
     for product in params['products']:
         if product['rec_state'] == (1, 0):
             # All the requirements passed
             product['rec_class'] = 'success'
+            product['rec_score_with_state'] = product['rec_score'] + 100
         elif product['rec_state'] == (0, 1):
             # All the requirements failed
             product['rec_class'] = 'error'
+            product['rec_score_with_state'] = product['rec_score'] - 100
         elif product['rec_state'] == (0, 0):
-            pass
+            product['rec_score_with_state'] = product['rec_score']
         elif product['rec_state'] == (1, 1):
-            pass
+            product['rec_score_with_state'] = product['rec_score']
+    params['products'] = sorted(params['products'], key=lambda x: -x.get("rec_score_with_state"))
 
     # Find tags
     if len(params['products']) > 0:
