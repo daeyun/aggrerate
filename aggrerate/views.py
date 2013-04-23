@@ -211,6 +211,7 @@ def attemptLogin():
             if login.login_user(flogin.User.get(request.args['username']), remember=True):
                 flask.flash("You logged in!", "info")
                 return flask.redirect(flask.url_for('main'))
+    flask.flash('Failed to login', 'error')
     return flask.redirect(flask.url_for('loginPage'))
 
 @app.route("/logout/")
