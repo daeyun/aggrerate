@@ -2,7 +2,7 @@ from flask import render_template, request
 import flask, time
 import json
 
-from aggrerate import app, util
+from aggrerate import app, util, build_tags
 from aggrerate.loginCode import loginCode, flogin
 from aggrerate.scraper import ReviewScraper
 from aggrerate.scraper.specifications import SpecificationScraper
@@ -697,6 +697,8 @@ def scrape():
     """, (scraper.__class__.pretty_site_name, request.form['url'], scraper.blurb or '')
     )
     db.commit()
+
+    build_tags.extract_keywords()
 
     flask.flash("Successfully scraped. They gave this product a %s." % scraper.score, "success")
     return redir

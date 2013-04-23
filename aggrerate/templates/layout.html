@@ -36,7 +36,6 @@
                             <li {% if request.path.startswith("/products/") %}class="active"{% endif %}><a href="{{ url_for('products_list') }}">Products</a></li>
                             <li {% if request.path.startswith("/recommendations/") %}class="active"{% endif %}><a href="{{ url_for('recommendations') }}">Recommendations</a></li>
                             <li {% if request.path.startswith("/history/") %}class="active"{% endif %}><a href="{{ url_for('history') }}">History</a></li>
-                            <li {% if request.path.startswith("/about/") %}class="active"{% endif %}><a href="{{ url_for('about') }}">About</a></li>
                         </ul>
                     </div>
                 </div>
