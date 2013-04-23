@@ -111,7 +111,7 @@ def extract_keywords():
 
         count = 0
 
-        print product_id
+        # print product_id
 
         tags = []
 
@@ -120,15 +120,15 @@ def extract_keywords():
                "verge" in pair[0] or "mags" in pair[0] or "wired" in pair[0]:
                     continue
             count += 1
-            print str(pair[1])[:9], pair[0]
+            # print str(pair[1])[:9], pair[0]
             tags.append(pair[0])
             if count >= 40:
                 break
 
         stringified_tags = ",".join(tags)
-        print stringified_tags
+        # print stringified_tags
 
-        print ""
+        # print ""
 
         cur.execute("""
         INSERT INTO product_tags VALUES (NULL, %s, %s)
