@@ -1,65 +1,69 @@
 <!-- Creates table in html-->
-<table class="table">
-    <tr>
-        <th>Manufacturer</th>
-        <th>Product</th>
-        {% if has_categories %}
-            <th>Category</th>
-        {% endif %}
-        {% if has_avg_scores %}
-            <th width="130">Average score</th>
-        {% endif %}
-        {% if has_stddev %}
-            <th width="60">Standard deviation</th>
-        {% endif %}
-        {% if has_avg_user_scores %}
-            <th width="140">Average user score</th>
-        {% endif %}
-    </tr>
-    {% for product in products %}
-    <tr class="{{ product.rec_class }}">
-        <td>{{ product.manufacturer }}</td>
-        <td><a class="product_name" href="{{ url_for('product', product_id=product.id) }}">{{ product.name }}</a></td>
-        {% if has_categories %}
-            <td><a href="{{ url_for('product_category', category_id=product.category_id) }}"> {{ product.category }}</a></td>
-        {% endif %}
-        {% if has_avg_scores %}
-            <td>
-                {%- if product.avg_score != None -%}
-                    {% if has_rec_scores %}
-                        <span title="{{ product.rec_score }}">{{ product.avg_score }}</span>
-                    {% else %}
-                        {{ product.avg_score }}
-                    {% endif %}
-                    {% if product.scraped_reviews_count %}
-                        <span class="muted">&mdash; {{ product.scraped_reviews_count }} ratings</span>
-                    {% endif %}
-                {%- else -%}
-                    <span class="muted">No ratings</span>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Manufacturer</th>
+            <th>Product</th>
+            {% if has_categories %}
+                <th>Category</th>
+            {% endif %}
+            {% if has_avg_scores %}
+                <th width="130">Average score</th>
+            {% endif %}
+            {% if has_stddev %}
+                <th width="60">Standard deviation</th>
+            {% endif %}
+            {% if has_avg_user_scores %}
+                <th width="140">Average user score</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+            <tr class="{{ product.rec_class }}">
+                <td>{{ product.manufacturer }}</td>
+                <td><a class="product_name" href="{{ url_for('product', product_id=product.id) }}">{{ product.name }}</a></td>
+                {% if has_categories %}
+                    <td><a href="{{ url_for('product_category', category_id=product.category_id) }}"> {{ product.category }}</a></td>
                 {% endif %}
-            </td>
-        {% endif %}
-        {% if has_stddev %}
-            <td>
-                {% if product.stddev != None %}
-                    {{ product.stddev }}
-                {% else %}
-                    <span class="muted">&mdash;</span>
-                {% endif %}
-            </td>
-        {% endif %}
-        {% if has_avg_user_scores %}
-            <td width="100">
-                {%- if product.avg_user_score != None -%}
-                    {{- product.avg_user_score }}
-                        {% if product.user_reviews_count %}
-                            <span class="muted">&mdash; {{ product.user_reviews_count }} ratings</span>
+                {% if has_avg_scores %}
+                    <td>
+                        {%- if product.avg_score != None -%}
+                            {% if has_rec_scores %}
+                                <span title="{{ product.rec_score }}">{{ product.avg_score }}</span>
+                            {% else %}
+                                {{ product.avg_score }}
+                            {% endif %}
+                            {% if product.scraped_reviews_count %}
+                                <span class="muted">&mdash; {{ product.scraped_reviews_count }} ratings</span>
+                            {% endif %}
+                        {%- else -%}
+                            <span class="muted">No ratings</span>
                         {% endif %}
-                {%- else -%}
-                    <span class="muted">No ratings</span>
+                    </td>
                 {% endif %}
-            </td>
-        {% endif %}
-    </tr>
-    {% endfor %}
+                {% if has_stddev %}
+                    <td>
+                        {% if product.stddev != None %}
+                            {{ product.stddev }}
+                        {% else %}
+                            <span class="muted">&mdash;</span>
+                        {% endif %}
+                    </td>
+                {% endif %}
+                {% if has_avg_user_scores %}
+                    <td width="100">
+                        {%- if product.avg_user_score != None -%}
+                            {{- product.avg_user_score }}
+                                {% if product.user_reviews_count %}
+                                    <span class="muted">&mdash; {{ product.user_reviews_count }} ratings</span>
+                                {% endif %}
+                        {%- else -%}
+                            <span class="muted">No ratings</span>
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>
