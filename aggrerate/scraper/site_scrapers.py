@@ -46,8 +46,11 @@ class CNETScraper(ReviewScraper):
     def parse_page(self):
         self.download_page()
         try:
-            self.score = \
-                float(self.soup.find(class_="rateBarStyle").strong.text)
+            rate_bar_elem = self.soup.find(class_="rateBarStyle")
+            if rate_bar_elem:
+                self.score = float(rate_bar_elem.strong.text)
+            else:
+                self.score = 2*float(self.soup.find(class_="rating").text)
             self.blurb = \
                 self.soup.find(class_="theBottomLine").span.text.strip()
             self.body = \
