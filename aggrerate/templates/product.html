@@ -56,6 +56,23 @@
                     <input type="hidden" name="product_id" value="{{ product.id }}">
                 </fieldset>
             </form>
+
+            {% if specs %}
+                <div class="span6">
+                    <table class="table">
+                        <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                        </tr>
+                        {% for spec in specs %}
+                            <tr>
+                                <td>{{ spec.name }}</td>
+                                <td title="{{ spec.value_decimal }}">{{ spec.value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endif %}
         </div>
 
         {% if current_user() %}
@@ -83,23 +100,6 @@
                         </div>
                     </fieldset>
                 </form>
-            </div>
-        {% endif %}
-
-        {% if specs %}
-            <div class="span6">
-                <table class="table">
-                    <tr>
-                        <th>Name</th>
-                        <th>Value</th>
-                    </tr>
-                    {% for spec in specs %}
-                        <tr>
-                            <td>{{ spec.name }}</td>
-                            <td title="{{ spec.value_decimal }}">{{ spec.value }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
             </div>
         {% endif %}
     </div>
