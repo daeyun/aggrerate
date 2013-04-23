@@ -352,12 +352,6 @@ def add_product():
 
     product_id = cur.lastrowid
 
-    def r(s):
-        try:
-            return float(filter(lambda x: unicode.isdigit(x) or x == '.', s))
-        except:
-            return None
-
     cur.executemany("""
     INSERT INTO
         specifications
@@ -369,7 +363,7 @@ def add_product():
             %s,
             %s
         )
-    """, [(product_id, k, v, r(v)) for k, v in specs_scraper.specs.iteritems()]
+    """, [(product_id, k, v, util.ugly_str_to_float(v)) for k, v in specs_scraper.specs.iteritems()]
     )
 
     db.commit()

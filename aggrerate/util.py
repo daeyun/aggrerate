@@ -111,3 +111,9 @@ def strip_tags(string):
     string = re.sub(r'\.[ \n\t\r]', r' ', string)
     string = re.sub(r'[\t\n ]+', r' ', string)
     return string
+
+def ugly_str_to_float(s):
+    try:
+        return float(filter(lambda x: unicode.isdigit(x) or x == '.', s))
+    except:
+        return None
