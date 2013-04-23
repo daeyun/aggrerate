@@ -643,7 +643,7 @@ def scrape():
         return redir
 
     scraper.parse_page()
-    if not scraper.score:
+    if not scraper.score or not scraper.timestamp:
         flask.flash("Couldn't find the result, boo", "error")
         return redir
 
