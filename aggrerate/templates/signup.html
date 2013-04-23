@@ -1,8 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 {% if retry %}
-<h3>Please include both a username and password<h3>
-{% else %}
+    <h3>Please include both a username and password<h3>
 {% endif %}
 <form class="form-horizontal" action="{{ url_for('attemptSignup') }}" method="POST">
     <fieldset>
