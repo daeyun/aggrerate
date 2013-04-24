@@ -832,7 +832,8 @@ def execute_search():
         metascore_with_date(%s,products.id,NOW()) AS time_score,
         metascore(%s,products.id) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
-        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
+        CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score,
+        COALESCE(product_tags.tags, "") AS tags
     FROM
         products
     INNER JOIN product_categories
@@ -843,6 +844,8 @@ def execute_search():
         ON (reviews.product_id = products.id AND scraped_reviews.review_id = reviews.id)
     LEFT JOIN (reviews AS reviews_u, user_reviews)
         ON (reviews_u.product_id = products.id AND user_reviews.review_id = reviews_u.id)
+    LEFT JOIN product_tags
+        ON (products.id = product_tags.product_id)
     """
     if query_words:
         query_sql += "WHERE\n "
@@ -872,6 +875,12 @@ def execute_search():
     for product in params['products']:
         product["rec_score"] = product["time_score"] or 5
         product["rec_state"] = (1, 1) # (All recs pass, all recs fail)
+
+    for tag in util.strip_tags(request.args.get('tags')).split():
+        for product in params['products']:
+            if tag in util.strip_tags(product['tags']).split():
+                print product["name"], tag
+                product["rec_score"] += 1
 
     # Rebuild requirements list
     requirements = []

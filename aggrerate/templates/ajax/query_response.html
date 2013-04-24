@@ -1,6 +1,10 @@
 {% if products[0] %}
     {% set our_pick = products[0] %}
     <h2><span class="muted thin">Our pick:</span> <a href="{{ url_for('product', product_id=our_pick.id) }}">{{ our_pick.name }}</a></h2>
+    <h4><span class="muted">Score:</span>
+         <span title="{{ our_pick.rec_score }}">{{ our_pick.avg_score }}</span>
+          <span class="muted thin">&mdash; {{ our_pick.scraped_reviews_count }} ratings</span>
+    </h4>
         {% if tags %}
             <div class="product_tags">
                 <div id="tagvis" tags="{{ tags }}"></div>
