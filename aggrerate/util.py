@@ -102,6 +102,9 @@ def get_userdata(username, cur=None):
 
 # This is not a very efficient way to strap tags, but it's easy and robust.
 def strip_tags(string):
+    if not string:
+        return ''
+
     string = re.sub(r'\{[\s\S]*?\}', r'', string)
     string = re.sub(r'\<[\s\S]*?\>', r'', string)
     string = re.sub(r'//[^ ]', r' ', string)
