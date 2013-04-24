@@ -256,7 +256,8 @@ def products_list():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore_with_date(%s,products.id,NOW()) AS avg_score,
+        metascore(%s,products.id) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS time_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
@@ -272,9 +273,9 @@ def products_list():
     GROUP BY
         products.id
     ORDER BY
-        avg_score DESC,
+        time_score DESC,
         products.name ASC
-    """, (login.current_user.data["user_id"],))
+    """, (login.current_user.data["user_id"],login.current_user.data["user_id"],))
     params['products'] = cur.fetchall()
 
     params['categories'] = util.get_product_categories()
@@ -506,7 +507,7 @@ def product(product_id=None):
         products.id AS id,
         products.name AS name,
         product_categories.name AS category,
-        metascore_with_date(%s,products.id,NOW()) AS avg_score
+        metascore(%s,products.id) AS avg_score
     FROM
         products
     INNER JOIN product_categories
@@ -724,7 +725,8 @@ def product_category(category_id):
         products.name AS name,
         manufacturers.name AS manufacturer,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore_with_date(%s,products.id,NOW()) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS time_score,
+        metascore(%s,products.id) AS avg_score,
         CAST(STDDEV_POP(reviews.score) AS DECIMAL(3, 2)) AS stddev,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
@@ -741,9 +743,9 @@ def product_category(category_id):
     GROUP BY
         products.id
     ORDER BY
-        avg_score DESC,
+        time_score DESC,
         products.name ASC
-    """, (login.current_user.data["user_id"], category_id,))
+    """, (login.current_user.data["user_id"], login.current_user.data["user_id"], category_id,))
     params['products'] = cur.fetchall()
 
     params['has_avg_scores']      = True
@@ -827,7 +829,8 @@ def execute_search():
         product_categories.id AS category_id,
         product_categories.name AS category,
         COUNT(DISTINCT scraped_reviews.id) AS scraped_reviews_count,
-        metascore_with_date(%s,products.id,NOW()) AS avg_score,
+        metascore_with_date(%s,products.id,NOW()) AS time_score,
+        metascore(%s,products.id) AS avg_score,
         COUNT(DISTINCT user_reviews.id) AS user_reviews_count,
         CAST(AVG(reviews_u.score) AS DECIMAL(3, 1)) AS avg_user_score
     FROM
@@ -850,11 +853,10 @@ def execute_search():
     GROUP BY
         products.id
     ORDER BY
-        avg_score DESC,
         products.name ASC
     """
 
-    sql_elements = [login.current_user.data["user_id"]]
+    sql_elements = [login.current_user.data["user_id"], login.current_user.data["user_id"]]
     sql_elements.extend(query_words)
 
     (db, cur) = util.get_dict_cursor()
@@ -868,7 +870,7 @@ def execute_search():
 
     # Unscored products start at an even 5
     for product in params['products']:
-        product["rec_score"] = product["avg_score"] or 5
+        product["rec_score"] = product["time_score"] or 5
         product["rec_state"] = (1, 1) # (All recs pass, all recs fail)
 
     # Rebuild requirements list
