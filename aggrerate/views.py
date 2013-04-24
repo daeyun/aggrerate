@@ -750,7 +750,7 @@ def product_category(category_id):
 
     params['has_avg_scores']      = True
     params['has_avg_user_scores'] = True
-    params['has_stddev']          = True
+    params['has_stddev']          = False
 
     return params
 
