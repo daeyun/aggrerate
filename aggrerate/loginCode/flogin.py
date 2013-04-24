@@ -20,7 +20,7 @@ class User(login.UserMixin):
         return self.data["username"]
 
     def is_admin(self):
-        return self.admin
+        return self.data["username"] == "admin"
 
     def is_authenticated(self):
         if self.data["username"] == "anonymous":

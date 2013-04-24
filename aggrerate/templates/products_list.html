@@ -24,56 +24,55 @@
                 </ul>
                 </div>
 
-                
-
-                <h3>Add a Product Here</h3>
-
-                <div class="control-group">
-                    <label for="product_name" class="control-label">Name</label>
-                    <div class="controls">
-                        <input type="text" name="product_name" placeholder="Product Name">
+                {% if current_user() and current_user().is_admin() %}
+                    <h3>Add a Product Here</h3>
+                    <div class="control-group">
+                        <label for="product_name" class="control-label">Name</label>
+                        <div class="controls">
+                            <input type="text" name="product_name" placeholder="Product Name">
+                        </div>
                     </div>
-                </div>
 
-                <div class="control-group">
-                    <label for="manufacturer_present" class="control-label">Manufacturer</label>
-                    <div class="controls">
-                        <select name="manufacturer_present" class="input-small">
-                            <option value="">&mdash;</option>
-                            {% for manufacturer in manufacturers %}
-                                <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
-                            {% endfor %}
-                        </select>
-                        &nbsp;or&nbsp;
-                        <input type="text" name="manufacturer_not_present" class="input-mini">
+                    <div class="control-group">
+                        <label for="manufacturer_present" class="control-label">Manufacturer</label>
+                        <div class="controls">
+                            <select name="manufacturer_present" class="input-small">
+                                <option value="">&mdash;</option>
+                                {% for manufacturer in manufacturers %}
+                                    <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+                                {% endfor %}
+                            </select>
+                            &nbsp;or&nbsp;
+                            <input type="text" name="manufacturer_not_present" class="input-mini">
+                        </div>
                     </div>
-                </div>
 
-                <div class="control-group">
-                    <label for="category" class="control-label">Category</label>
-                    <div class="controls">
-                        <select name="category_id" class="input-small">
-                            {% for category in categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="control-group">
+                        <label for="category" class="control-label">Category</label>
+                        <div class="controls">
+                            <select name="category_id" class="input-small">
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="control-group">
-                    <label for="specs_url" class="control-label">Specifications</label>
-                    <div class="controls">
-                        <input type="text" name="specs_url" placeholder="Specifications URL">
+                    <div class="control-group">
+                        <label for="specs_url" class="control-label">Specifications</label>
+                        <div class="controls">
+                            <input type="text" name="specs_url" placeholder="Specifications URL">
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn">Create</button>
-                </div>
-            </fieldset>
-        </form>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Create</button>
+                    </div>
+                </fieldset>
+            </form>
 
-        <p><small class="muted">Specifications are scraped from The Verge product pages.</small></p>
+            <p><small class="muted">Specifications are scraped from The Verge product pages.</small></p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
