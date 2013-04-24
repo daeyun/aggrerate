@@ -31,6 +31,7 @@ $(function() {
 
             var request_data = {
                 'query': $('input[name="query"]', $form).val(),
+                'tags':  $('input[name="tags"]',  $form).val(),
                 'requirements': data,
                 'num_requirements': data.length
             }
