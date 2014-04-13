@@ -16,6 +16,16 @@ Dependencies
 Install Dependencies
 ------------
 
+Set up virtualenv on a development machine
+
+```
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+```
+
+Install requirements
+
 ```
 pip install -r requirements.txt
 ```
