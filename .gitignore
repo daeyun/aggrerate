@@ -2,3 +2,5 @@
 *.swp
 local_config.py
 data
+.DS_Store
+venv
