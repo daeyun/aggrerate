@@ -12,3 +12,10 @@ Dependencies
   - MySQL-python
 * C libraries
   - bcrypt
+
+Install Dependencies
+------------
+
+```
+pip install -r requirements.txt
+```
